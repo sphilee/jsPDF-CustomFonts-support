@@ -80,7 +80,7 @@ doc.setFontSize(20);
 doc.setTextColor(153,051,102);
 doc.setCharSpace(3);
 
-doc.drawText(10, 20, ['나는 jspdf의 ', {
+doc.drawText(10, 20, ['나는 jsPDF의 ', {
     text: '홍A平길Bお동安C'
     , fontSize: 30
     , TextColor: [255, 0, 0]
