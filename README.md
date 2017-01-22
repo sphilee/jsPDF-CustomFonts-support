@@ -17,7 +17,7 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 0.1 Initial proof of concept
 
-### add Custom Fonts Method ##
+### addCustomFonts Method ##
 
 ```javascript
 doc.addFont(filename, fontname, font-weight, encoding);
