@@ -1,4 +1,4 @@
-# jspdf-CustomFonts-support
+# jsPDF-CustomFonts-support
 
 JsPDF is an open source that reads JavaScript in an HTML5 environment and creates a pdf document.
 
