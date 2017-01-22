@@ -325,7 +325,7 @@ var jsPDF = (function (global) {
                 events.publish('postPutPages');
             },
             putFont = function (font) {
-               if ((font.id).slice(1) >= 14 && font.encoding === 'Identity-H') {    //Indetity-h인 경우의 Tag
+               if ((font.id).slice(1) >= 14 && font.encoding === 'Identity-H') {    //Tag with Identity-h
                     var data = font.metadata.subset.encode(glyID);
                     var pdfOutput = data;
                     var pdfOutput2 = "";
@@ -362,7 +362,7 @@ var jsPDF = (function (global) {
                     out('<</Subtype/Type0/Type/Font/BaseFont/' + font.fontName + '/Encoding/'+ font.encoding +'/DescendantFonts[' + DescendantFonts + ' 0 R]>>');
                     out('endobj');
                 }
-                else if ((font.id).slice(1) >= 14 && font.encoding === 'WinAnsiEncoding') { //WinAnsi encoding인 경우의 Tag
+                else if ((font.id).slice(1) >= 14 && font.encoding === 'WinAnsiEncoding') { //Tag with WinAnsi encoding
                     var data = font.metadata.rawData;
                     var pdfOutput = data;
                     var pdfOutput2 = "";
@@ -396,7 +396,7 @@ var jsPDF = (function (global) {
 
                     font.objectNumber = newObject();
                     for(var i = 0; i<font.metadata.hmtx.widths.length; i++)
-                        font.metadata.hmtx.widths[i] = parseInt(font.metadata.hmtx.widths[i]*(1000/font.metadata.head.unitsPerEm)); //Em단위의 width를 Point단위로 바꾸어 준다.
+                        font.metadata.hmtx.widths[i] = parseInt(font.metadata.hmtx.widths[i]*(1000/font.metadata.head.unitsPerEm)); //Change the width of Em units to Point units.
                     out('<</Subtype/TrueType/Type/Font/BaseFont/' + font.fontName + '/FontDescriptor ' + fontDescriptor + ' 0 R'+ '/Encoding/' + font.encoding + ' /FirstChar 29 /LastChar 255 /Widths ' + PDFObject.convert(font.metadata.hmtx.widths) + '>>');
                     out('endobj');
                 }
