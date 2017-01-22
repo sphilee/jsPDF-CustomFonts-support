@@ -11,7 +11,7 @@ Version 0.1
 
 [jsPDF libary](http://parall.ax/products/jspdf) 
 
-I do not claim to be the author of the jsPDF library, this code simply adds preliminary custom support.
+I do not claim to be the author of the jsPDF library, this code simply adds preliminary custom fonts support.
 
 ## Version History 
 
