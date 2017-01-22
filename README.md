@@ -19,16 +19,16 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 ## Getting Started
 
-This document will walk you through the basics of pdfmake and will show you how to create PDF files in the browser. If you're interested in server-side printing check the examples folder.
+This document will walk you through the basics of jsPDF and will show you how to create PDF files in the browser.
 
-To begin with the default configuration, you should include two files:
+To begin with the default configuration, you should include six files:
 
 * **jspdf.js**,
 * **FileSaver.js**,
 * **split_text_to_size.js**,
 * **standard_fonts_metrics.js**,
 * **TextBuilder.js**,
-* **vfs_fonts.js** - default font definition (it contains Roboto, you can however [use custom fonts instead](https://github.com/bpampuch/pdfmake/wiki/Custom-Fonts---client-side))
+* **vfs_fonts.js** - default font definition (it contains 8 Fonts, you can however [use custom fonts instead](https://github.com/bpampuch/pdfmake/wiki/Custom-Fonts---client-side))
 
 ```html
 <!DOCTYPE html>
