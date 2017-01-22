@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <title>my jspdf </title>
+    <script language="javascript" type="text/javascript" src="jspdf.js"></script>
+    <script language="javascript" type="text/javascript" src="FileSaver.js"></script>
+    <script language="javascript" type="text/javascript" src="split_text_to_size.js"></script>
+    <script language="javascript" type="text/javascript" src="standard_fonts_metrics.js"></script>
+    <script type="text/javascript" src="TextBuilder.js"></script>
+    <script type="text/javascript" src="vfs_fonts.js"></script>
+</head>
+<body>
+    <script>
+        var doc = new PDFDocument();
+
+        doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H'); //14
+        doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H'); //15
+        doc.addFont('msgothic.ttf', 'MsGothic', 'normal', 'Identity-H');    //16
+        doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');        //17
+        //doc.addFont('HARLOWSI.TTF', 'WMLWQI+HarlowSolid', 'normal', 'WinAnsiEncoding'); //18
+        //doc.addFont('ITCBLKAD.TTF','a','normal','WinAnsiEncoding');
+        //doc.addFont('BOD_PSTC.TTF','b','normal','WinAnsiEncoding');
+        //doc.addFont('GADUGI.TTF', 'GADUGI', 'normal', 'WinAnsiEncoding');
+
+
+
+        doc.setFont('MagicR');        // set font
+
+
+        //doc.setDefaultFonts(0, 'Times');    //Korean default
+        //doc.setDefaultFonts(1, 'AAAAAA+MagicR-HM');    //Korean default
+        doc.setDefaultFonts(3, 'HanWang');         //Chinese default
+        doc.setDefaultFonts(2, 'MsGothic');        //Japanese default
+
+
+        doc.setFontSize(20);
+        doc.setTextColor(153,051,102);
+        doc.setCharSpace(3);
+
+        doc.drawText(10, 20, ['나는 jspdf의 ', {
+            text: '홍A平길Bお동安C'
+            , fontSize: 30
+            , TextColor: [255, 0, 0]
+            , charSpace: -1
+            , font: 'HeadlineR'
+        },' 입니다.']);
+
+        doc.save('jspdf.pdf');
+    </script>
+</body>
+
+</html>
