@@ -1624,7 +1624,7 @@ function PDFDocument() {
         };*/
         /***************************************************************/
         /* function : generateCmap                                     */
-        /* comment : 해당 폰트에 대한 unicode cmap을 리턴한다.         */
+        /* comment : Returns the unicode cmap for this font.         */
         /***************************************************************/
         Subset.prototype.generateCmap = function () {
             var mapping, roman, unicode, unicodeCmap, _ref;
