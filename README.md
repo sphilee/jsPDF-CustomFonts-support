@@ -92,3 +92,5 @@ doc.save('jspdf.pdf');
 
 ```
 
+### License ##
+MIT
