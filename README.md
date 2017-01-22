@@ -5,7 +5,7 @@ JsPDF is an open source that reads JavaScript in an HTML5 environment and create
 The current version does not support Custom Fonts. I will try to implement this feature.
 
 
-### Current Version ##
+## Current Version 
 
 Version 0.1
 
@@ -13,7 +13,7 @@ Version 0.1
 
 I do not claim to be the author of the jsPDF library, this code simply adds preliminary custom support.
 
-### Version History ##
+## Version History 
 
 0.1 Initial proof of concept
 
@@ -48,7 +48,7 @@ To begin with the default configuration, you should include six files:
 ...
 ```
 
-### addCustomFonts Method ##
+## addCustomFonts Method 
 
 ```javascript
 doc.addFont(filename, fontname, font-weight, encoding);
@@ -56,7 +56,7 @@ doc.addFont(filename, fontname, font-weight, encoding);
 
 ```
 
-### Example Code ##
+## Example Code 
 
 ```javascript
 var doc = new PDFDocument();
@@ -92,5 +92,5 @@ doc.save('jspdf.pdf');
 
 ```
 
-### License ##
+## License 
 MIT
