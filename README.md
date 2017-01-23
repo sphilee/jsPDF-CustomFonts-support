@@ -51,7 +51,7 @@ To begin with the default configuration, you should include six files:
 ## addCustomFonts Method 
 
 ```javascript
-doc.addFont(filename, fontname, fontStyle, encoding);
+doc.addFont(fileName, fontName, fontStyle, encoding);
 
 
 ```
