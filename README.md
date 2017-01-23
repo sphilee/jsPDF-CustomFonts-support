@@ -71,7 +71,7 @@ doc.setFont('MagicR');        // set font
 
 
 //doc.setDefaultFonts(0, 'Times');    //English default
-//doc.setDefaultFonts(1, 'AAAAAA+MagicR-HM');    //Korean default
+//doc.setDefaultFonts(1, 'MagicR');    //Korean default
 doc.setDefaultFonts(3, 'HanWang');         //Chinese default
 doc.setDefaultFonts(2, 'MsGothic');        //Japanese default
 
