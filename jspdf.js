@@ -1,6 +1,6 @@
 /** @preserve
  * jsPDF - PDF Document creation from JavaScript
- * Version ${versionID}
+ * Version ${versionID} 
  *                           CommitID ${commitID}
  *
  * Copyright (c) 2010-2016 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
