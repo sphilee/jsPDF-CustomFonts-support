@@ -1,15 +1,12 @@
 /************************************************
- * Title : custom font
- * Start Data : 2017. 01. 22.					*
- * Comment : TEXT API							*
+ * Title : custom font                          *
+ * Start Data : 2017. 01. 22.				          	*
+ * Comment : TEXT API							              *
  ************************************************/
-function PDFDocument() {
-    return new jsPDF();
-}
 
-/**************************
- * jsPDF extension API Design   *
- * ************************/
+/******************************
+ * jsPDF extension API Design *
+ * ****************************/
 (function(API){
 
     var PLUS = '+'.charCodeAt(0)
@@ -22,8 +19,8 @@ function PDFDocument() {
 
     /*****************************************************************/
     /* function : b64ToByteArray                                     */
-    /* comment : Base64 encoded TTF file contents (b64) are decoded */
-    /*     by Byte array and stored.                                */
+    /* comment : Base64 encoded TTF file contents (b64) are decoded  */
+    /*     by Byte array and stored.                                 */
     /*****************************************************************/
     b64ToByteArray = function(b64) {
         var i, j, l, tmp, placeHolders, arr

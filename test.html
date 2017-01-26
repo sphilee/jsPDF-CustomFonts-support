@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-    <title>my jspdf </title>
+    <title>my first jspdf example</title>
     <script language="javascript" type="text/javascript" src="jspdf.js"></script>
     <script language="javascript" type="text/javascript" src="FileSaver.js"></script>
     <script language="javascript" type="text/javascript" src="split_text_to_size.js"></script>
@@ -13,13 +13,13 @@
 </head>
 <body>
     <script>
-        var doc = new PDFDocument();
+        var doc = new jsPDF();
 
-        doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H'); 
-        doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H'); 
-        doc.addFont('msgothic.ttf', 'MsGothic', 'normal', 'Identity-H');    
-        doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');        
-        //doc.addFont('HARLOWSI.TTF', 'WMLWQI+HarlowSolid', 'normal', 'WinAnsiEncoding'); 
+        doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H');
+        doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H');
+        doc.addFont('msgothic.ttf', 'MsGothic', 'normal', 'Identity-H');
+        doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');
+        //doc.addFont('HARLOWSI.TTF', 'WMLWQI+HarlowSolid', 'normal', 'WinAnsiEncoding');
         //doc.addFont('ITCBLKAD.TTF','a','normal','WinAnsiEncoding');
         //doc.addFont('BOD_PSTC.TTF','b','normal','WinAnsiEncoding');
         //doc.addFont('GADUGI.TTF', 'GADUGI', 'normal', 'WinAnsiEncoding');

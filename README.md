@@ -5,15 +5,15 @@ JsPDF is an open source that reads JavaScript in an HTML5 environment and create
 The current version does not support Custom Fonts. I will try to implement this feature.
 
 
-## Current Version 
+## Current Version
 
 Version 0.1
 
-[jsPDF libary](http://parall.ax/products/jspdf) 
+[jsPDF libary](http://parall.ax/products/jspdf)
 
 I do not claim to be the author of the jsPDF library, this code simply adds preliminary custom fonts support.
 
-## Version History 
+## Version History
 
 0.1 Initial proof of concept
 
@@ -36,7 +36,7 @@ To begin with the default configuration, you should include six files:
 
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-    <title>my jspdf </title>
+    <title>my first jspdf example</title>
     <script language="javascript" type="text/javascript" src="jspdf.js"></script>
     <script language="javascript" type="text/javascript" src="FileSaver.js"></script>
     <script language="javascript" type="text/javascript" src="split_text_to_size.js"></script>
@@ -48,7 +48,7 @@ To begin with the default configuration, you should include six files:
 ...
 ```
 
-## addCustomFonts Method 
+## addCustomFonts Method
 
 ```javascript
 doc.addFont(fileName, fontName, fontStyle, encoding);
@@ -56,13 +56,13 @@ doc.addFont(fileName, fontName, fontStyle, encoding);
 
 ```
 
-## Example Code 
+## Example Code
 
 ```javascript
-var doc = new PDFDocument();
+var doc = new jsPDF();
 
-doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H'); 
-doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H'); 
+doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H');
+doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H');
 doc.addFont('msgothic.ttf', 'MsGothic', 'normal', 'Identity-H');    
 doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');       
 
@@ -92,5 +92,5 @@ doc.save('jspdf.pdf');
 
 ```
 
-## License 
+## License
 MIT
