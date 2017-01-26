@@ -354,7 +354,7 @@ var jsPDF = (function(global) {
         events.publish('postPutPages');
       },
       putFont = function(font) {
-        if ((font.id).slice(1) >= 14 && font.encoding === 'Identity-H') {    //Indetity-h인 경우의 Tag
+        if ((font.id).slice(1) >= 14 && font.encoding === 'Identity-H') {    //Tag with Identity-h
               var data = font.metadata.subset.encode(glyID);
               var pdfOutput = data;
               var pdfOutput2 = "";
@@ -391,7 +391,7 @@ var jsPDF = (function(global) {
               out('<</Subtype/Type0/Type/Font/BaseFont/' + font.fontName + '/Encoding/'+ font.encoding +'/DescendantFonts[' + DescendantFonts + ' 0 R]>>');
               out('endobj');
         }
-        else if ((font.id).slice(1) >= 14 && font.encoding === 'WinAnsiEncoding') { //WinAnsi encoding인 경우의 Tag
+        else if ((font.id).slice(1) >= 14 && font.encoding === 'WinAnsiEncoding') { //Tag with WinAnsi encoding
               var data = font.metadata.rawData;
               var pdfOutput = data;
               var pdfOutput2 = "";
@@ -423,7 +423,7 @@ var jsPDF = (function(global) {
               out('endobj');
               font.objectNumber = newObject();
               for(var i = 0; i<font.metadata.hmtx.widths.length; i++)
-                  font.metadata.hmtx.widths[i] = parseInt(font.metadata.hmtx.widths[i]*(1000/font.metadata.head.unitsPerEm)); //Em단위의 width를 Point단위로 바꾸어 준다.
+                  font.metadata.hmtx.widths[i] = parseInt(font.metadata.hmtx.widths[i]*(1000/font.metadata.head.unitsPerEm)); //Change the width of Em units to Point units.
               out('<</Subtype/TrueType/Type/Font/BaseFont/' + font.fontName + '/FontDescriptor ' + fontDescriptor + ' 0 R'+ '/Encoding/' + font.encoding + ' /FirstChar 29 /LastChar 255 /Widths ' + PDFObject.convert(font.metadata.hmtx.widths) + '>>');
               out('endobj');
           }
@@ -1413,7 +1413,7 @@ var jsPDF = (function(global) {
                // we do array.join('text that must not be PDFescaped")
                // thus, pdfEscape each component separately
                for (i = 0; i < text.length; i++) {
-                   if (typeof text[i] === 'object') {	//배열 안의 입력한 글자가 object인 경우
+                   if (typeof text[i] === 'object') {	//The input character in the array is the object
                        key = getFont(text[i].font, text[i].fontStyle);
                        if (text[i].hasOwnProperty('fontSize')) fontSize = text[i].fontSize;
                        if (text[i].hasOwnProperty('charSpace')) charSpace = text[i].charSpace;
@@ -1422,7 +1422,7 @@ var jsPDF = (function(global) {
                        sum = axisCache[0];
                        y = axisCache[1];
                    }
-                   else {	//배열 안의 입력한 글자가 string인 경우
+                   else {	//The input character in the array is string.
                        fontSize = activeFontSize;
                        charSpace = activeCharSpace;
                        Color = strColor;
@@ -1466,32 +1466,32 @@ var jsPDF = (function(global) {
            else
                key = activeFontKey;
                if(fonts[key].metadata.hasOwnProperty('cmap'))
-                   cmapConfirm = fonts[key].metadata.cmap.unicode.codeMap[strtext[s].charCodeAt(0)];       //cmap안에 해당 문자 glyph id가 있는지 확인
+                   cmapConfirm = fonts[key].metadata.cmap.unicode.codeMap[strtext[s].charCodeAt(0)];       //Make sure the cmap has the corresponding glyph id
                if(!cmapConfirm) {
                    if((strtext[s].charCodeAt(0) > 44031 || (strtext[s].charCodeAt(0) >= 12592 && strtext[s].charCodeAt(0) <= 12912)) && !(typeof korFontKey == 'undefined')){
-                       //한국어인 경우
+                       //In Korean
                        key = korFontKey;
                        widths = fonts[key].metadata.widthOfString(strtext[s], fontSize, charSpace);
                        str = strtext[s];
                     }
                    else if(((strtext[s].charCodeAt(0) >= 12288 && strtext[s].charCodeAt(0) <= 12319) || (strtext[s].charCodeAt(0) >= 12353 && strtext[s].charCodeAt(0) <= 12543) || (strtext[s].charCodeAt(0) >= 13056 && strtext[s].charCodeAt(0) <= 13151)) && !(typeof japFontKey == 'undefined')) {
-                       //일본어인 경우
+                       //In Japanese
                        key = japFontKey;
                        widths = fonts[key].metadata.widthOfString(strtext[s], fontSize, charSpace);
                        str = strtext[s];
                    }
                    else if((strtext[s].charCodeAt(0) >= 19968 && strtext[s].charCodeAt(0) <= 40959) && !(typeof chiFontKey == 'undefined')) {
-                       //중국어인 경우
+                       //In Chinese
                        key = chiFontKey;
                        widths = fonts[key].metadata.widthOfString(strtext[s], fontSize, charSpace);
                        str = strtext[s];
                    }
                    else if (strtext[s].charCodeAt(0) < 256 && fonts[key].metadata.hasOwnProperty('Unicode')){
-                       //pdf 기본13font인 경우
+                       //For the default 13 font
                        widths = (fonts[key].metadata.Unicode.widths[strtext[s].charCodeAt(0)]/fonts[key].metadata.Unicode.widths[77])*(fontSize+charSpace);
                        str = strtext[s];
                    }
-                   else {  //setFont한 font안에 다른 언어 글자가 존재하는 경우
+                   else {  //SetFont If there are other language characters in the font
                        str = '';
                        widths = 0;
                    }
@@ -1522,7 +1522,7 @@ var jsPDF = (function(global) {
            strBuffer[v].encoding = fonts[tkey].encoding;
            strBuffer.splice(v+1, strtext.length);
            for(s = 0; s < v+1; s++){
-           	if (parseInt(strBuffer[s].key.slice(1)) < 14) {    //기본 13개 폰트인 경우
+           	if (parseInt(strBuffer[s].key.slice(1)) < 14) {    //For the default 13 font
        			strBuffer[s].widths = API.getStringUnitWidth(strBuffer[s].words) * fontSize + (strBuffer[s].words.length * charSpace);
        			strBuffer[s].hexwords = toHex(pdfEscape(strBuffer[s].words, strBuffer[s].key));
     			} else {
@@ -1557,7 +1557,7 @@ var jsPDF = (function(global) {
                    width[fonts[activeFontKey].fontName].push(t);
                    width[fonts[activeFontKey].fontName].push([parseInt(fonts[activeFontKey].metadata.widthOfGlyph(t), 10)]);
                }
-               if(t == '0') {	//cmap에 없는 글자 나올시 공백으로 뿌린다.
+               if(t == '0') {	//Spaces are not allowed in cmap.
                    return ar.join("");
                } else {
                    t = t.toString(16);
@@ -2198,11 +2198,11 @@ var jsPDF = (function(global) {
      /* comment : Specifies the default font the user wants.*/
      /*******************************************************/
       API.setDefaultFonts = function(flags,fontName, fontStyle) {
-          if(flags == 1) {    //한국어
+          if(flags == 1) {    //In korean
               korFontKey = getFont(fontName, fontStyle);
-          } else if(flags == 2) { //일본어
+          } else if(flags == 2) { //In Japanese
               japFontKey = getFont(fontName, fontStyle);
-          } else if(flags == 3) { //중국어
+          } else if(flags == 3) { //In Chinese
               chiFontKey = getFont(fontName, fontStyle);
           }
       }
@@ -2395,9 +2395,9 @@ var jsPDF = (function(global) {
                      return Color = [f3(r / 255), f3(g / 255), f3(b / 255), 'rg'].join(' ');
                  }
              }
-             if(flags){                                  //멀티 속성의 Color인 경우
+             if(flags){                                  //If the color is multi-attribute
                  return objColor = colorcalc(r,g,b);
-             } else if(typeof flags === 'undefined'){    //default setTextColor인경우
+             } else if(typeof flags === 'undefined'){    //Default setTextColor
                  r1=r,g1=g,b1=b;
                  return strColor = colorcalc(r1,g1,b1);;
              }

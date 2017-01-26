@@ -41,7 +41,7 @@ To begin with the default configuration, you should include six files:
     <script language="javascript" type="text/javascript" src="FileSaver.js"></script>
     <script language="javascript" type="text/javascript" src="split_text_to_size.js"></script>
     <script language="javascript" type="text/javascript" src="standard_fonts_metrics.js"></script>
-    <script type="text/javascript" src="TextBuilder.js"></script>
+    <script type="text/javascript" src="customfonts.js"></script>
     <script type="text/javascript" src="vfs_fonts.js"></script>
 </head>
 <body>
