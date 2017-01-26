@@ -68,7 +68,9 @@ doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');
 
 
 doc.setFont('MagicR');        // set font
-
+doc.setFontSize(20);
+doc.setTextColor(153,051,102);
+doc.setCharSpace(3);
 
 //doc.setDefaultFonts(0, 'Times');    //English default
 //doc.setDefaultFonts(1, 'MagicR');    //Korean default
@@ -76,9 +78,7 @@ doc.setDefaultFonts(3, 'HanWang');         //Chinese default
 doc.setDefaultFonts(2, 'MsGothic');        //Japanese default
 
 
-doc.setFontSize(20);
-doc.setTextColor(153,051,102);
-doc.setCharSpace(3);
+
 
 doc.drawText(10, 20, ['나는 jsPDF의 ', {
     text: '홍A平길Bお동安C'

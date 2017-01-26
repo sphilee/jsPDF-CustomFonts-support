@@ -1,6 +1,6 @@
 /** @preserve
  * jsPDF - PDF Document creation from JavaScript
- * Version ${versionID} 
+ * Version ${versionID}
  *                           CommitID ${commitID}
  *
  * Copyright (c) 2010-2016 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
@@ -167,6 +167,7 @@ var jsPDF = (function(global) {
    */
   function jsPDF(orientation, unit, format, compressPdf) {
     var options = {};
+    var vfs = getVfs();
 
     if (typeof orientation === 'object') {
       options = orientation;
@@ -181,7 +182,6 @@ var jsPDF = (function(global) {
     unit = unit || 'mm';
     format = format || 'a4';
     orientation = ('' + (orientation || 'P')).toLowerCase();
-    var vfs = getVfs();
 
     var format_as_string = ('' + format).toLowerCase(),
       compress = !!compressPdf && typeof Uint8Array === 'function',
