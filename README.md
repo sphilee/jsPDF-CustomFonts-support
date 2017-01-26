@@ -27,7 +27,7 @@ To begin with the default configuration, you should include six files:
 * **FileSaver.js**,
 * **split_text_to_size.js**,
 * **standard_fonts_metrics.js**,
-* **TextBuilder.js**,
+* **customfonts.js**,
 * **vfs_fonts.js** - default font definition (it contains 8 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
 
 ```html
