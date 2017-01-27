@@ -64,7 +64,8 @@ var doc = new jsPDF();
 doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H');
 doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H');
 doc.addFont('msgothic.ttf', 'MsGothic', 'normal', 'Identity-H');    
-doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');       
+doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');
+//doc.addFont('GADUGI.TTF', 'GADUGI', 'normal', 'WinAnsiEncoding');
 
 
 doc.setFont('MagicR');        // set font
