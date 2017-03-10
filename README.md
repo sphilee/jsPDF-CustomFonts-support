@@ -85,7 +85,7 @@ doc.drawText(10, 20, ['나는 jsPDF의 ', {
     text: '홍A平길Bお동安C'
     , fontSize: 30
     , TextColor: [255, 0, 0]
-    , charSpace: -1
+    , charSpace: 3
     , font: 'HeadlineR'
 },' 입니다.']);
 
