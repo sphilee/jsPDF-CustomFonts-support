@@ -64,7 +64,7 @@ var doc = new jsPDF();
 doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal', 'Identity-H');
 doc.addFont('HMKMRHD.TTF', 'HeadlineR', 'normal', 'Identity-H');
 doc.addFont('msgothic.ttf', 'MsGothic', 'normal', 'Identity-H');    
-doc.addFont('wts11.ttf', 'HanWang', 'normal', 'Identity-H');
+doc.addFont('gothic.ttf', 'LiLing', 'normal', 'Identity-H');
 //doc.addFont('GADUGI.TTF', 'GADUGI', 'normal', 'WinAnsiEncoding');
 
 
@@ -75,7 +75,7 @@ doc.setCharSpace(3);
 
 //doc.setDefaultFonts(0, 'Times');    //English default
 //doc.setDefaultFonts(1, 'MagicR');    //Korean default
-doc.setDefaultFonts(3, 'HanWang');         //Chinese default
+doc.setDefaultFonts(3, 'LiLing');         //Chinese default
 doc.setDefaultFonts(2, 'MsGothic');        //Japanese default
 
 
