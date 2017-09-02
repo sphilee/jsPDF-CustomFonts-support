@@ -35,14 +35,14 @@ To begin with the default configuration, you should include six files:
 <html>
 
 <head>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
-    <title>my first jspdf example</title>
-    <script language="javascript" type="text/javascript" src="jspdf.js"></script>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>jsPDF customfonts example</title>
     <script language="javascript" type="text/javascript" src="./plugins/FileSaver.js"></script>
     <script language="javascript" type="text/javascript" src="./plugins/split_text_to_size.js"></script>
     <script language="javascript" type="text/javascript" src="./plugins/standard_fonts_metrics.js"></script>
-    <script type="text/javascript" src="customfonts.js"></script>
-    <script type="text/javascript" src="vfs_fonts.js"></script>
+    <script language="javascript" type="text/javascript" src="jspdf.js"></script>
+    <script language="javascript" type="text/javascript" src="customfonts.js"></script>
+    <script language="javascript" type="text/javascript" src="vfs_fonts.js"></script>
 </head>
 <body>
 ...
