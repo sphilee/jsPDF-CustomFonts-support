@@ -1,13 +1,13 @@
 # jsPDF-CustomFonts-support
 
-JsPDF is an open source that reads JavaScript in an HTML5 environment and creates a pdf document.
+JsPDF is an open source that loads JavaScript in an HTML5 environment and creates a pdf document.
 
 The current version does not support Custom Fonts. I will try to implement this feature.
 
 
 ## Current Version
 
-Version 0.1
+Version 0.2
 
 [jsPDF libary](http://parall.ax/products/jspdf)
 
@@ -16,6 +16,7 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 ## Version History
 
 0.1 Initial proof of concept
+0.2 support multiline text
 
 ## Getting Started
 
@@ -75,19 +76,25 @@ doc.setCharSpace(3);
 
 //doc.setDefaultFonts(0, 'Times');    //English default
 //doc.setDefaultFonts(1, 'MagicR');    //Korean default
-doc.setDefaultFonts(3, 'LiLing');         //Chinese default
-doc.setDefaultFonts(2, 'MsGothic');        //Japanese default
+//doc.setDefaultFonts(3, 'LiLing');         //Chinese default
+//doc.setDefaultFonts(2, 'MsGothic');        //Japanese default
 
 
 
 
-doc.drawText(10, 20, ['나는 jsPDF의 ', {
-    text: '홍A平길Bお동安C'
-    , fontSize: 30
-    , TextColor: [255, 0, 0]
-    , charSpace: 3
-    , font: 'HeadlineR'
-},' 입니다.']);
+doc.drawText(10, 20, ['안녕하세요 저는 jsPDF의 custom font 개발자 이관형입니다.', {
+    text: '你好，很高兴见到你 你叫什么名字？',
+    fontSize: 30,
+    textColor: [255, 0, 0],
+    charSpace: 3,
+    font: 'LiLing'
+}, {
+    text: 'こんにちは。あなたの名前は何ですか？',
+    fontSize: 20,
+    textColor: [0, 150, 0],
+    charSpace: 3,
+    font: 'MsGothic'
+}]);
 
 doc.save('jspdf.pdf');
 
