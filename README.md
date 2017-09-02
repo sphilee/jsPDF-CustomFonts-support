@@ -16,6 +16,7 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 ## Version History
 
 0.1 Initial proof of concept
+
 0.2 support multiline text
 
 ## Getting Started
