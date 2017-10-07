@@ -368,29 +368,6 @@ var jsPDF = (function (global) {
             pre = index === 1 ? String.fromCharCode(pre) : pre;
             return pre + String.fromCharCode(cur);
           });
-          var toUnicodeCmap = function (map) {
-            var code, codes, range, unicode, unicodeMap, _i, _len;
-            unicodeMap = '/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo <<\n  /Registry (Adobe)\n  /Ordering (UCS)\n  /Supplement 0\n>> def\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<00><ff>\nendcodespacerange';
-            codes = Object.keys(map).sort(function (a, b) {
-              return a - b;
-            });
-            range = [];
-            for (_i = 0, _len = codes.length; _i < _len; _i++) {
-              code = codes[_i];
-              if (range.length >= 100) {
-                unicodeMap += "\n" + range.length + " beginbfchar\n" + (range.join('\n')) + "\nendbfchar";
-                range = [];
-              }
-              unicode = ('0000' + map[code].toString(16)).slice(-4);
-              code = (+code).toString(16);
-              range.push("<" + code + "><" + unicode + ">");
-            }
-            if (range.length) {
-              unicodeMap += "\n" + range.length + " beginbfchar\n" + (range.join('\n')) + "\nendbfchar\n";
-            }
-            return unicodeMap += 'endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend';
-          };
-          var unicodeCmap = toUnicodeCmap(font.metadata.subset.subset);
           var firstChar = +Object.keys(font.metadata.subset.cmap)[0];
           if (!firstChar) {
             delete fonts[font.id];
@@ -408,7 +385,6 @@ var jsPDF = (function (global) {
           }).call(this);
           var fontTable = newObject();
           out('<<');
-          out('/Length ' + fontFile2.length);
           out('/Length1 ' + fontFile2.length);
           out('>>');
           out('stream');
@@ -432,10 +408,10 @@ var jsPDF = (function (global) {
           out('endobj');
           var ToUnicode = newObject();
           out('<<');
-          out('/Length ' + unicodeCmap.length);
+          out('/Length ' + font.metadata.subset.unicodeCmap.length);
           out('>>');
           out('stream');
-          out(unicodeCmap);
+          out(font.metadata.subset.unicodeCmap);
           out('endstream');
           out('endobj');
           font.objectNumber = newObject();

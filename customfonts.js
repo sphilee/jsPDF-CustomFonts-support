@@ -1647,6 +1647,7 @@
             this.font = font;
             this.subset = {};
             this.unicodes = {};
+            this.unicodeCmap = {};
             this.next = 33;
         }
 
@@ -1662,6 +1663,29 @@
                 this.subset[this.next] = character;
                 return this.unicodes[character] = this.next++;
             }
+        };
+
+        Subset.prototype.toUnicodeCmap = function (map) {
+            var code, codes, range, unicode, unicodeMap, _i, _len;
+            unicodeMap = '/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CIDSystemInfo <<\n  /Registry (Adobe)\n  /Ordering (UCS)\n  /Supplement 0\n>> def\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<00><ff>\nendcodespacerange';
+            codes = Object.keys(map).sort(function (a, b) {
+                return a - b;
+            });
+            range = [];
+            for (_i = 0, _len = codes.length; _i < _len; _i++) {
+                code = codes[_i];
+                if (range.length >= 100) {
+                    unicodeMap += "\n" + range.length + " beginbfchar\n" + (range.join('\n')) + "\nendbfchar";
+                    range = [];
+                }
+                unicode = ('0000' + map[code].toString(16)).slice(-4);
+                code = (+code).toString(16);
+                range.push("<" + code + "><" + unicode + ">");
+            }
+            if (range.length) {
+                unicodeMap += "\n" + range.length + " beginbfchar\n" + (range.join('\n')) + "\nendbfchar\n";
+            }
+            return unicodeMap += 'endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend';
         };
 
         Subset.prototype.encodeText = function (text) {
@@ -1729,6 +1753,7 @@
             var cmap, code, glyf, glyphs, id, ids, loca, name, new2old, newIDs, nextGlyphID, old2new, oldID, oldIDs, tables, _ref, _ref1;
             cmap = CmapTable.encode(this.generateCmap(), 'unicode');
             glyphs = this.glyphsFor(this.glyphIDs());
+            this.unicodeCmap = this.toUnicodeCmap(this.subset);
             old2new = {
                 0: 0
             };
@@ -1786,7 +1811,7 @@
         return Subset;
 
     })();
-    
+
     var PDFReference = (function () {
         function PDFReference(document, id, data) {
             this.document = document;
