@@ -433,7 +433,9 @@ var jsPDF = (function (global) {
             return pre + String.fromCharCode(cur);
           });;
           var scale = 1000.0 / font.metadata.head.unitsPerEm;
-          var widthResults = [];
+          var encodingBlock = fonts["F1"].metadata.Unicode.encoding.WinAnsiEncoding;
+          var codeMap = font.metadata.cmap.unicode.codeMap;
+          var widths = new Array(255).fill(0);
           var fontTable = newObject();
           out('<<');
           out('/Length ' + fontFile2.length);
@@ -458,16 +460,12 @@ var jsPDF = (function (global) {
           out('>>');
           out('endobj');
           font.objectNumber = newObject();
-          Object.keys(font.metadata.cmap.unicode.codeMap).map(function (objectKey) {
-            var value = font.metadata.cmap.unicode.codeMap[objectKey];
-            var ch = fonts["F1"].metadata.Unicode.encoding.WinAnsiEncoding[objectKey];
-            ch ? widthResults[ch] = Math.round(font.metadata.hmtx.metrics[value].advance * scale) : widthResults[objectKey] = Math.round(font.metadata.hmtx.metrics[value].advance * scale);
+          Object.keys(codeMap).map(function (key) {
+            var value = codeMap[key];
+            var exist = encodingBlock[key];
+            exist ? widths[exist] = Math.round(font.metadata.hmtx.metrics[value].advance * scale) : key < 256 ? widths[key] = Math.round(font.metadata.hmtx.metrics[value].advance * scale) : false;
           });
-          for (var i = 0; i < 256; i++) {
-            if (widthResults[i] == undefined)
-              widthResults[i] = 0;
-          }
-          out('<</Subtype/TrueType/Type/Font/BaseFont/' + font.fontName + '/FontDescriptor ' + fontDescriptor + ' 0 R' + '/Encoding/' + font.encoding + ' /FirstChar 0 /LastChar 255 /Widths ' + PDFObject.convert(widthResults.slice(0, 256)) + '>>');
+          out('<</Subtype/TrueType/Type/Font/BaseFont/' + font.fontName + '/FontDescriptor ' + fontDescriptor + ' 0 R' + '/Encoding/' + font.encoding + ' /FirstChar 0 /LastChar 255 /Widths ' + PDFObject.convert(widths) + '>>');
           out('endobj');
         } else {
           font.objectNumber = newObject();
