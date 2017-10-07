@@ -1,12 +1,3 @@
-/************************************************
- * Title : custom font                          *
- * Start Data : 2017. 01. 22.				          	*
- * Comment : TEXT API							              *
- ************************************************/
-
-/******************************
- * jsPDF extension API Design *
- * ****************************/
 (function (API) {
 
     var PLUS = '+'.charCodeAt(0)
@@ -313,10 +304,10 @@
             }
             return _results;
         };
-        /*Data.prototype.stringAt = function (pos, length) {
+        Data.prototype.stringAt = function (pos, length) {
             this.pos = pos;
             return this.readString(length);
-        };*/
+        };
         Data.prototype.readShort = function () {
             return this.readInt16();
         };
@@ -357,9 +348,9 @@
         Data.prototype.writeInt = function (val) {
             return this.writeInt32(val);
         };
-        /*Data.prototype.slice = function (start, end) {
+        Data.prototype.slice = function (start, end) {
             return this.data.slice(start, end);
-        };*/
+        };
         Data.prototype.read = function (bytes) {
             var buf, i, _i;
             buf = [];
@@ -565,6 +556,51 @@
         };
 
         return HeadTable;
+
+    })(Table);
+
+    var CmapTable = (function (_super) {
+        __extends(CmapTable, _super);
+
+        function CmapTable() {
+            return CmapTable.__super__.constructor.apply(this, arguments);
+        }
+
+        CmapTable.prototype.tag = 'cmap';
+
+        CmapTable.prototype.parse = function (data) {
+            var entry, i, tableCount, _i;
+            data.pos = this.offset;
+            this.version = data.readUInt16();
+            tableCount = data.readUInt16();
+            this.tables = [];
+            this.unicode = null;
+            for (i = _i = 0; 0 <= tableCount ? _i < tableCount : _i > tableCount; i = 0 <= tableCount ? ++_i : --_i) {
+                entry = new CmapEntry(data, this.offset);
+                this.tables.push(entry);
+                if (entry.isUnicode) {
+                    if (this.unicode == null) {
+                        this.unicode = entry;
+                    }
+                }
+            }
+            return true;
+        };
+
+        CmapTable.encode = function (charmap, encoding) {
+            var result, table;
+            if (encoding == null) {
+                encoding = 'macroman';
+            }
+            result = CmapEntry.encode(charmap, encoding);
+            table = new Data;
+            table.writeUInt16(0);
+            table.writeUInt16(1);
+            result.table = table.data.concat(result.subtable);
+            return result;
+        };
+
+        return CmapTable;
 
     })(Table);
 
@@ -803,51 +839,6 @@
         return CmapEntry;
 
     })();
-
-    var CmapTable = (function (_super) {
-        __extends(CmapTable, _super);
-
-        function CmapTable() {
-            return CmapTable.__super__.constructor.apply(this, arguments);
-        }
-
-        CmapTable.prototype.tag = 'cmap';
-
-        CmapTable.prototype.parse = function (data) {
-            var entry, i, tableCount, _i;
-            data.pos = this.offset;
-            this.version = data.readUInt16();
-            tableCount = data.readUInt16();
-            this.tables = [];
-            this.unicode = null;
-            for (i = _i = 0; 0 <= tableCount ? _i < tableCount : _i > tableCount; i = 0 <= tableCount ? ++_i : --_i) {
-                entry = new CmapEntry(data, this.offset);
-                this.tables.push(entry);
-                if (entry.isUnicode) {
-                    if (this.unicode == null) {
-                        this.unicode = entry;
-                    }
-                }
-            }
-            return true;
-        };
-
-        CmapTable.encode = function (charmap, encoding) {
-            var result, table;
-            if (encoding == null) {
-                encoding = 'macroman';
-            }
-            result = CmapEntry.encode(charmap, encoding);
-            table = new Data;
-            table.writeUInt16(0);
-            table.writeUInt16(1);
-            result.table = table.data.concat(result.subtable);
-            return result;
-        };
-
-        return CmapTable;
-
-    })(Table);
 
     var HheaTable = (function (_super) {
         __extends(HheaTable, _super);
@@ -1795,7 +1786,7 @@
         return Subset;
 
     })();
-
+    
     var PDFReference = (function () {
         function PDFReference(document, id, data) {
             this.document = document;
