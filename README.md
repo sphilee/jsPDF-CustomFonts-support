@@ -17,6 +17,8 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 0.1 Initial proof of concept
 
+0.2 support multiline text
+
 ## Getting Started
 
 This document will walk you through the basics of jsPDF and will show you how to create PDF files in the browser.

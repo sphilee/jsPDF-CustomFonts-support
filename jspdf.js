@@ -1431,10 +1431,81 @@ var jsPDF = (function (global) {
           s = s.split("\t").join(Array(options.TabLen || 9).join(" "));
           return pdfEscape(s, flags);
         }
+        /**
+        Returns a widths of string in a given font, if the font size is set as 1 point.
+
+        In other words, this is "proportional" value. For 1 unit of font size, the length
+        of the string will be that much.
+
+        Multiply by font size to get actual width in *points*
+        Then divide by 72 to get inches or divide by (72/25.6) to get 'mm' etc.
+
+        @public
+        @function
+        @param
+        @returns {Type}
+        */
+        function getStringUnitWidth(text, options) {
+          var result = 0;
+          if (typeof TTFFont === "function" && options.font.metadata instanceof TTFFont === true) {
+            result = options.font.metadata.widthOfString(text, options.fontSize, options.charSpace);
+          } else {
+            result = getArraySum(getCharWidthsArray(text, options)) * options.fontSize;
+          }
+          return result;
+        };
+
+        /**
+        Returns an array of length matching length of the 'word' string, with each
+        cell ocupied by the width of the char in that position.
+
+        @function
+        @param word {String}
+        @param widths {Object}
+        @param kerning {Object}
+        @returns {Array}
+        */
+        function getCharWidthsArray(text, options) {
+          options = options || {};
+
+          var widths = options.widths ? options.widths : options.font.metadata.Unicode.widths;
+          var widthsFractionOf = widths.fof ? widths.fof : 1;
+          var kerning = options.kerning ? options.kerning : options.font.metadata.Unicode.kerning;
+          var kerningFractionOf = kerning.fof ? kerning.fof : 1;
+
+          var i;
+          var l;
+          var char_code;
+          var prior_char_code = 0; //for kerning
+          var default_char_width = widths[0] || widthsFractionOf;
+          var output = [];
+
+          for (i = 0, l = text.length; i < l; i++) {
+            char_code = text.charCodeAt(i)
+            output.push(
+              (widths[char_code] || default_char_width) / widthsFractionOf +
+              (kerning[char_code] && kerning[char_code][prior_char_code] || 0) / kerningFractionOf
+            );
+            prior_char_code = char_code;
+          }
+
+          return output
+        }
+
+        function getArraySum(array) {
+          var i = array.length;
+          var output = 0;
+
+          while (i) {
+            i--;
+            output += array[i];
+          }
+
+          return output;
+        }
 
         function encode(font, text) {
           font.use(text);
-
           text = font.encode(text);
           text = ((function () {
             var _results = [];
@@ -1473,6 +1544,67 @@ var jsPDF = (function (global) {
             text = [text];
           }
         }
+
+        //multiline
+        var maxWidth = options.maxWidth || this.internal.pageSize.width;
+        var activeFont = fonts[activeFontKey];
+        var k = this.internal.scaleFactor;
+
+        var widthOfSpace = getStringUnitWidth(" ", {
+          font: activeFont,
+          charSpace: activeCharSpace,
+          fontSize: activeFontSize
+        }) / k;
+        var splitByMaxWidth = function (value, maxWidth) {
+          var i = 0;
+          var lastBreak = 0;
+          var currentWidth = 0;
+          var resultingChunks = [];
+          var widthOfEachWord = [];
+          var currentChunk = [];
+
+          var listOfWords = [];
+          var result = [];
+
+          listOfWords = value.split(/ /g);
+
+          for (i = 0; i < listOfWords.length; i += 1) {
+            widthOfEachWord.push(getStringUnitWidth(listOfWords[i], {
+              font: activeFont,
+              charSpace: activeCharSpace,
+              fontSize: activeFontSize
+            }) / k);
+          }
+          for (i = 0; i < listOfWords.length; i += 1) {
+            currentChunk = widthOfEachWord.slice(lastBreak, i);
+            currentWidth = getArraySum(currentChunk) + widthOfSpace * (currentChunk.length - 1);
+            if (currentWidth >= maxWidth) {
+              resultingChunks.push(listOfWords.slice(lastBreak, (((i !== 0) ? i - 1 : 0))).join(" "));
+              lastBreak = (((i !== 0) ? i - 1 : 0));
+              i -= 1;
+            } else if (i === (widthOfEachWord.length - 1)) {
+              resultingChunks.push(listOfWords.slice(lastBreak, widthOfEachWord.length).join(" "));
+            }
+          }
+          result = [];
+          for (i = 0; i < resultingChunks.length; i += 1) {
+            result = result.concat(resultingChunks[i])
+          }
+          return result;
+        }
+        var firstFitMethod = function (value, maxWidth) {
+          var j = 0;
+          var tmpText = [];
+          for (j = 0; j < value.length; j += 1) {
+            tmpText = tmpText.concat(splitByMaxWidth(value[j], maxWidth));
+          }
+          return tmpText;
+        }
+
+        if (maxWidth > 0) {
+          text = firstFitMethod(text, maxWidth - x);
+        }
+
         if (typeof angle === 'string') {
           align = angle;
           angle = null;
@@ -1529,20 +1661,9 @@ var jsPDF = (function (global) {
             len = sa.length
           // we do array.join('text that must not be PDFescaped")
           // thus, pdfEscape each component separately
-          if (fonts[activeFontKey].encoding === "MacRomanEncoding") {
-            out('BT\n/' + activeFontKey + ' ' + activeFontSize + ' Tf\n' + // font face, style, size
-              (activeFontSize * lineHeightProportion) + ' TL\n' + // line spacing
-              strokeOption + // stroke option
-              activeCharSpace + ' Tc\n' + // Char spacing
-              textColor +
-              '\n' + xtra + f2(x * k) + ' ' + f2((pageHeight - y) * k) + ' ' + mode + '\n<' +
-              encode(fonts[activeFontKey].metadata, text.toString()) +
-              '> Tj\nET\n');
-            return this;
-          }
 
           while (len--) {
-            da.push(ESC(sa.shift()));
+            da.push(activeFont.encoding === "MacRomanEncoding" ? sa.shift() : ESC(sa.shift()));
           }
           var linesLeft = Math.ceil((pageHeight - y - this._runningPageHeight) *
             k / (activeFontSize * lineHeightProportion));
@@ -1588,7 +1709,15 @@ var jsPDF = (function (global) {
               prevX = left + delta;
             }
           } else {
-            text = da.join(") Tj\nT* (");
+            if (activeFont.encoding === "MacRomanEncoding") {
+              text = da.map(function (out) {
+                return encode(activeFont.metadata, out);
+              }).join("> Tj\nT* <");
+              content = '<' + text + '>';
+            } else {
+              text = da.join(") Tj\nT* (");
+              content = '(' + text + ')';
+            }
           }
         } else {
           throw new Error('Type of text must be string or Array. "' + text +
@@ -1603,7 +1732,7 @@ var jsPDF = (function (global) {
         // - readers dealing smartly with brokenness of jsPDF's markup.
 
         var curY;
-
+        var content;
         if (todo) {
           //this.addPage();
           //this._runningPageHeight += y -  (activeFontSize * 1.7 / k);
@@ -1620,7 +1749,6 @@ var jsPDF = (function (global) {
         //				curY = f2(pageHeight - activeFontSize * 1.7 /k);
         //			}
 
-
         out(
           'BT\n/' +
           activeFontKey + ' ' + activeFontSize + ' Tf\n' + // font face, style, size
@@ -1628,9 +1756,9 @@ var jsPDF = (function (global) {
           strokeOption + // stroke option
           activeCharSpace + ' Tc\n' + // Char spacing
           textColor +
-          '\n' + xtra + f2(x * k) + ' ' + curY + ' ' + mode + '\n(' +
-          text +
-          ') Tj\nET');
+          '\n' + xtra + f2(x * k) + ' ' + curY + ' ' + mode + '\n' +
+          content +
+          ' Tj\nET');
 
         if (todo) {
           //this.text( todo, x, activeFontSize * 1.7 / k);
