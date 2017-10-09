@@ -561,7 +561,7 @@ var jsPDF = (function (global) {
             'encoding': encoding,
             'metadata': vfs.hasOwnProperty(postScriptName) ? TTFFont.open(postScriptName, fontName, vfs[postScriptName], encoding) : {}
           };
-        font.encoding = !encoding ? font.metadata.loca.length > 10000 ? "MacRomanEncoding" : "WinAnsiEncoding" : encoding;
+        font.encoding = !encoding ? font.metadata.hmtx.widths.length > 500 ? "MacRomanEncoding" : "WinAnsiEncoding" : encoding;
         addToFontDictionary(fontKey, fontName, fontStyle);
         events.publish('addFont', font);
 
@@ -1549,6 +1549,7 @@ var jsPDF = (function (global) {
         var maxWidth = options.maxWidth || this.internal.pageSize.width;
         var activeFont = fonts[activeFontKey];
         var k = this.internal.scaleFactor;
+        var content;
 
         var widthOfSpace = getStringUnitWidth(" ", {
           font: activeFont,
@@ -1586,7 +1587,6 @@ var jsPDF = (function (global) {
               resultingChunks.push(listOfWords.slice(lastBreak, widthOfEachWord.length).join(" "));
             }
           }
-          result = [];
           for (i = 0; i < resultingChunks.length; i += 1) {
             result = result.concat(resultingChunks[i])
           }
@@ -1601,9 +1601,7 @@ var jsPDF = (function (global) {
           return tmpText;
         }
 
-        if (maxWidth > 0) {
-          text = firstFitMethod(text, maxWidth - x);
-        }
+        text = maxWidth > 0 ? firstFitMethod(text, maxWidth - x) : text;
 
         if (typeof angle === 'string') {
           align = angle;
@@ -1732,7 +1730,6 @@ var jsPDF = (function (global) {
         // - readers dealing smartly with brokenness of jsPDF's markup.
 
         var curY;
-        var content;
         if (todo) {
           //this.addPage();
           //this._runningPageHeight += y -  (activeFontSize * 1.7 / k);
