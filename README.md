@@ -30,7 +30,7 @@ To begin with the default configuration, you should include six files:
 * **split_text_to_size.js**,
 * **standard_fonts_metrics.js**,
 * **customfonts.js**,
-* **vfs_fonts.js** - default font definition (it contains 8 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
+* **vfs_fonts.js** - default font definition (it contains 4 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
 
 ```html
 <!DOCTYPE html>
@@ -65,15 +65,21 @@ var doc = new jsPDF();
 
 
 doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal');
+doc.addFont('roundedMgenplus.ttf', 'roundedMgenplus', 'normal');
 doc.addFont('gothic.ttf', 'LiLing', 'normal');
-// doc.addFont('GuardianSans.ttf', 'GuardianSans', 'normal');
-
+doc.addFont('GuardianSans.ttf', 'GuardianSans', 'normal');
 
 doc.setFont('MagicR');
-doc.text(15, 15, '안녕하세요 저는 jsPDF의 custom font 개발자 이관형입니다.');
+doc.text(15, 15, '안녕하세요 만나서 반갑습니다.');
+
+doc.setFont('roundedMgenplus');
+doc.text(15, 30, 'こんにちは。はじめまして。');
 
 doc.setFont('LiLing');
-doc.text(15, 30, 'こんにちは。あなたの名前は何ですか？');
+doc.text(15, 45, '早上好。 很高兴见到你');
+
+doc.setFont('GuardianSans');
+doc.text(15, 60, 'Good morning. Nice to meet you.');
 
 doc.save('jspdf.pdf');
 
