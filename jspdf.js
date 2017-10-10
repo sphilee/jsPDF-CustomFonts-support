@@ -1549,7 +1549,6 @@ var jsPDF = (function (global) {
         var maxWidth = options.maxWidth || this.internal.pageSize.width;
         var activeFont = fonts[activeFontKey];
         var k = this.internal.scaleFactor;
-        var content;
 
         var widthOfSpace = getStringUnitWidth(" ", {
           font: activeFont,
@@ -1708,13 +1707,11 @@ var jsPDF = (function (global) {
             }
           } else {
             if (activeFont.encoding === "MacRomanEncoding") {
-              text = da.map(function (out) {
+              text = '<' + da.map(function (out) {
                 return encode(activeFont.metadata, out);
-              }).join("> Tj\nT* <");
-              content = '<' + text + '>';
+              }).join("> Tj\nT* <") + '>';
             } else {
-              text = da.join(") Tj\nT* (");
-              content = '(' + text + ')';
+              text = '(' + da.join(") Tj\nT* (") + ')';
             }
           }
         } else {
@@ -1754,7 +1751,7 @@ var jsPDF = (function (global) {
           activeCharSpace + ' Tc\n' + // Char spacing
           textColor +
           '\n' + xtra + f2(x * k) + ' ' + curY + ' ' + mode + '\n' +
-          content +
+          text +
           ' Tj\nET');
 
         if (todo) {
