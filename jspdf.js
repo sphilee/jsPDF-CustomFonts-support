@@ -1600,7 +1600,7 @@ var jsPDF = (function (global) {
           return tmpText;
         }
 
-        text = maxWidth > 0 ? firstFitMethod(text, maxWidth - x) : text;
+        text = maxWidth > 0 && maxWidth > x ? firstFitMethod(text, maxWidth - x) : text;
 
         if (typeof angle === 'string') {
           align = angle;
@@ -1700,7 +1700,7 @@ var jsPDF = (function (global) {
               );
             }
             prevX = x;
-            text = da[0];
+            text = activeFont.encoding === "MacRomanEncoding" ? encode(activeFont.metadata, da[0]) : da[0];
             for (var i = 1, len = da.length; i < len; i++) {
               var delta = maxLineLength - lineWidths[i];
               if (align === "center") delta /= 2;
@@ -1715,19 +1715,11 @@ var jsPDF = (function (global) {
               prevX = left + delta;
             }
           } else {
-            if (activeFont.encoding === "MacRomanEncoding") {
-              text = da.map(function (out) {
-                return encode(activeFont.metadata, out);
-              }).join("> Tj\nT* <");
-            } else {
-              text = da.join(") Tj\nT* (");
-            }
+            text = activeFont.encoding === "MacRomanEncoding" ? da.map(function (out) {
+              return encode(activeFont.metadata, out);
+            }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
           }
-          if (activeFont.encoding === "MacRomanEncoding") {
-            text = '<' + text + '>';
-          } else {
-            text = '(' + text + ')';
-          }
+          text = activeFont.encoding === "MacRomanEncoding" ? '<' + text + '>' : '(' + text + ')';
         } else {
           throw new Error('Type of text must be string or Array. "' + text +
             '" is not recognized.');
