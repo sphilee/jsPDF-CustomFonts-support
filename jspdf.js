@@ -1674,7 +1674,11 @@ var jsPDF = (function (global) {
               maxLineLength,
               leading = activeFontSize * lineHeightProportion,
               lineWidths = text.map(function (v) {
-                return this.getStringUnitWidth(v) * activeFontSize / k;
+                return getStringUnitWidth(v, {
+                  font: activeFont,
+                  charSpace: activeCharSpace,
+                  fontSize: activeFontSize
+                }) / k;
               }, this);
             maxLineLength = Math.max.apply(Math, lineWidths);
             // The first line uses the "main" Td setting,
@@ -1701,18 +1705,28 @@ var jsPDF = (function (global) {
               var delta = maxLineLength - lineWidths[i];
               if (align === "center") delta /= 2;
               // T* = x-offset leading Td ( text )
-              text += ") Tj\n" + ((left - prevX) + delta) + " -" + leading +
-                " Td (" + da[i];
+              if (activeFont.encoding === "MacRomanEncoding") {
+                text += "> Tj\n" + ((left - prevX) + delta) + " -" + leading +
+                  " Td <" + da[i];
+              } else {
+                text += ") Tj\n" + ((left - prevX) + delta) + " -" + leading +
+                  " Td (" + da[i];
+              }
               prevX = left + delta;
             }
           } else {
             if (activeFont.encoding === "MacRomanEncoding") {
-              text = '<' + da.map(function (out) {
+              text = da.map(function (out) {
                 return encode(activeFont.metadata, out);
-              }).join("> Tj\nT* <") + '>';
+              }).join("> Tj\nT* <");
             } else {
-              text = '(' + da.join(") Tj\nT* (") + ')';
+              text = da.join(") Tj\nT* (");
             }
+          }
+          if (activeFont.encoding === "MacRomanEncoding") {
+            text = '<' + text + '>';
+          } else {
+            text = '(' + text + ')';
           }
         } else {
           throw new Error('Type of text must be string or Array. "' + text +
