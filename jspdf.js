@@ -199,6 +199,7 @@ var jsPDF = (function (global) {
       drawColor = options.drawColor || '0 G',
       activeFontSize = options.fontSize || 16,
       activeCharSpace = options.charSpace || 0,
+      activeMaxWidth = options.maxWidth || 0,
       lineHeightProportion = options.lineHeight || 1.15,
       lineWidth = options.lineWidth || 0.200025, // 2mm
       objectNumber = 2, // 'n' Current object number
@@ -1546,7 +1547,7 @@ var jsPDF = (function (global) {
         }
 
         //multiline
-        var maxWidth = options.maxWidth || this.internal.pageSize.width;
+        var maxWidth = activeMaxWidth || 0;
         var activeFont = fonts[activeFontKey];
         var k = this.internal.scaleFactor;
 
@@ -1600,7 +1601,8 @@ var jsPDF = (function (global) {
           return tmpText;
         }
 
-        text = maxWidth > 0 && maxWidth > x ? firstFitMethod(text, maxWidth - x) : text;
+        if (maxWidth > 0)
+          text = firstFitMethod(text, maxWidth - x);
 
         if (typeof angle === 'string') {
           align = angle;
@@ -2389,6 +2391,22 @@ var jsPDF = (function (global) {
 
     API.setCharSpace = function (charSpace) {
       activeCharSpace = charSpace;
+      return this;
+    };
+
+
+    /**
+     * Initializes the maximum length of text for multi-lines that the user wants to be global..
+     *
+     * @param {Number} maxWidth
+     * @function
+     * @returns {jsPDF}
+     * @methodOf jsPDF#
+     * @name setMaxWidth
+     */
+
+    API.setMaxWidth = function (maxWidth) {
+      activeMaxWidth = maxWidth;
       return this;
     };
 
