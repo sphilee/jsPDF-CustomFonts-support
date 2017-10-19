@@ -177,7 +177,7 @@ var jsPDF = (function (global) {
    */
   function jsPDF(orientation, unit, format, compressPdf) {
     var options = {};
-    var vfs = getVFS || {};
+    var vfs = jsPDF.API.getVFS || {};
 
     if (typeof orientation === 'object') {
       options = orientation;
@@ -397,7 +397,7 @@ var jsPDF = (function (global) {
           out('/Type /FontDescriptor');
           out('/FontName /' + font.metadata.subset.postscriptName);
           out('/FontFile2 ' + fontTable + ' 0 R');
-          out('/FontBBox ' + PDFObject.convert(font.metadata.bbox));
+          out('/FontBBox ' + jsPDF.API.PDFObject.convert(font.metadata.bbox));
           out('/Flags ' + font.metadata.flags);
           out('/StemV ' + font.metadata.stemV);
           out('/ItalicAngle ' + font.metadata.italicAngle);
@@ -423,7 +423,7 @@ var jsPDF = (function (global) {
           out('/FontDescriptor ' + fontDescriptor + ' 0 R');
           out('/FirstChar ' + firstChar);
           out('/LastChar ' + (firstChar + charWidths.length - 1));
-          out('/Widths ' + PDFObject.convert(charWidths));
+          out('/Widths ' + jsPDF.API.PDFObject.convert(charWidths));
           out('/Encoding /' + font.encoding);
           out('/ToUnicode ' + ToUnicode + ' 0 R');
           out('>>');
@@ -454,7 +454,7 @@ var jsPDF = (function (global) {
           out('/Type /FontDescriptor');
           out('/FontFile2 ' + fontTable + ' 0 R');
           out('/Flags ' + font.metadata.flags);
-          out('/FontBBox ' + PDFObject.convert(font.metadata.bbox));
+          out('/FontBBox ' + jsPDF.API.PDFObject.convert(font.metadata.bbox));
           out('/FontName /' + font.fontName);
           out('/ItalicAngle ' + font.metadata.italicAngle);
           out('/Ascent ' + font.metadata.ascender);
@@ -466,7 +466,7 @@ var jsPDF = (function (global) {
             var exist = encodingBlock[key];
             exist ? widths[exist] = Math.round(font.metadata.hmtx.metrics[value].advance * scale) : key < 256 ? widths[key] = Math.round(font.metadata.hmtx.metrics[value].advance * scale) : false;
           });
-          out('<</Subtype/TrueType/Type/Font/BaseFont/' + font.fontName + '/FontDescriptor ' + fontDescriptor + ' 0 R' + '/Encoding/' + font.encoding + ' /FirstChar 0 /LastChar 255 /Widths ' + PDFObject.convert(widths) + '>>');
+          out('<</Subtype/TrueType/Type/Font/BaseFont/' + font.fontName + '/FontDescriptor ' + fontDescriptor + ' 0 R' + '/Encoding/' + font.encoding + ' /FirstChar 0 /LastChar 255 /Widths ' + jsPDF.API.PDFObject.convert(widths) + '>>');
           out('endobj');
         } else {
           font.objectNumber = newObject();
@@ -560,7 +560,7 @@ var jsPDF = (function (global) {
             'fontName': fontName,
             'fontStyle': fontStyle,
             'encoding': encoding,
-            'metadata': vfs.hasOwnProperty(postScriptName) ? TTFFont.open(postScriptName, fontName, vfs[postScriptName], encoding) : {}
+            'metadata': vfs.hasOwnProperty(postScriptName) ? jsPDF.API.TTFFont.open(postScriptName, fontName, vfs[postScriptName], encoding) : {}
           };
         font.encoding = !encoding ? font.metadata.hmtx.widths.length > 500 ? "MacRomanEncoding" : "WinAnsiEncoding" : encoding;
         addToFontDictionary(fontKey, fontName, fontStyle);
@@ -1448,7 +1448,7 @@ var jsPDF = (function (global) {
         */
         function getStringUnitWidth(text, options) {
           var result = 0;
-          if (typeof TTFFont === "function" && options.font.metadata instanceof TTFFont === true) {
+          if (typeof jsPDF.API.TTFFont === "function" && options.font.metadata instanceof jsPDF.API.TTFFont === true) {
             result = options.font.metadata.widthOfString(text, options.fontSize, options.charSpace);
           } else {
             result = getArraySum(getCharWidthsArray(text, options)) * options.fontSize;

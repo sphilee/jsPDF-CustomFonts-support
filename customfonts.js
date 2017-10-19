@@ -1,4 +1,4 @@
-(function (API) {
+(function (jsPDFAPI) {
 
     var PLUS = '+'.charCodeAt(0)
     var SLASH = '/'.charCodeAt(0)
@@ -56,7 +56,7 @@
         if (code < LOWER + 26) return code - LOWER + 26
     }
 
-    TTFFont = (function () {
+    jsPDFAPI.TTFFont = (function () {
         TTFFont.open = function (filename, name, vfs, encoding) {
             var contents;
             contents = b64ToByteArray(vfs);
@@ -1837,7 +1837,7 @@
     })();
 
 
-    PDFObject = (function () {
+    jsPDFAPI.PDFObject = (function () {
         var pad, swapBytes;
 
         function PDFObject() {}
