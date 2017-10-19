@@ -177,7 +177,7 @@ var jsPDF = (function (global) {
    */
   function jsPDF(orientation, unit, format, compressPdf) {
     var options = {};
-    var vfs = (typeof getVfs === "function") ? getVfs() : {};
+    var vfs = getVFS || {};
 
     if (typeof orientation === 'object') {
       options = orientation;
@@ -1602,7 +1602,7 @@ var jsPDF = (function (global) {
         }
 
         if (maxWidth > 0)
-          text = firstFitMethod(text, maxWidth - x);
+          text = firstFitMethod(text, maxWidth);
 
         if (typeof angle === 'string') {
           align = angle;
