@@ -8,12 +8,7 @@
     var PLUS_URL_SAFE = '-'.charCodeAt(0)
     var SLASH_URL_SAFE = '_'.charCodeAt(0)
 
-    /*****************************************************************/
-    /* function : b64ToByteArray                                     */
-    /* comment : Base64 encoded TTF file contents (b64) are decoded  */
-    /*     by Byte array and stored.                                 */
-    /*****************************************************************/
-    b64ToByteArray = function (b64) {
+    var b64ToByteArray = function (b64) {
         var i, j, l, tmp, placeHolders, arr
         if (b64.length % 4 > 0) {
             throw new Error('Invalid string. Length must be a multiple of 4')
@@ -51,12 +46,7 @@
         return arr
     }
 
-    /***************************************************************/
-    /* function : decode                                           */
-    /* comment : Change the base64 encoded font's content to match */
-    /*   the base64 index value.                                   */
-    /***************************************************************/
-    decode = function (elt) {
+    var decode = function (elt) {
         var code = elt.charCodeAt(0)
         if (code === PLUS || code === PLUS_URL_SAFE) return 62 // '+'
         if (code === SLASH || code === SLASH_URL_SAFE) return 63 // '/'
@@ -67,20 +57,11 @@
     }
 
     TTFFont = (function () {
-        /************************************************************************/
-        /* function : open                                                       */
-        /* comment : Decode the encoded ttf content and create a TTFFont object. */
-        /************************************************************************/
         TTFFont.open = function (filename, name, vfs, encoding) {
             var contents;
             contents = b64ToByteArray(vfs);
             return new TTFFont(contents, name, encoding);
         };
-        /***************************************************************/
-        /* function : TTFFont gernerator                               */
-        /* comment : Decode TTF contents are parsed, Data,             */
-        /* Subset object is created, and registerTTF function is called.*/
-        /***************************************************************/
         function TTFFont(rawData, name, encoding) {
             var data, i, numFonts, offset, offsets, version, _i, _j, _len;
             this.rawData = rawData;
@@ -99,10 +80,6 @@
                 this.registerTTF();
             }
         }
-        /********************************************************/
-        /* function : parse                                     */
-        /* comment : TTF Parses the file contents by each table.*/
-        /********************************************************/
         TTFFont.prototype.parse = function () {
             this.directory = new Directory(this.contents);
             this.head = new HeadTable(this);
@@ -120,10 +97,6 @@
             this.lineGap = (this.os2.exists && this.os2.lineGap) || this.hhea.lineGap;
             return this.bbox = [this.head.xMin, this.head.yMin, this.head.xMax, this.head.yMax];
         };
-        /***************************************************************/
-        /* function : registerTTF                                      */
-        /* comment : Get the value to assign pdf font descriptors.     */
-        /***************************************************************/
         TTFFont.prototype.registerTTF = function () {
             var e, hi, low, raw, _ref;
             this.scaleFactor = 1000.0 / this.head.unitsPerEm;
@@ -218,10 +191,6 @@
         return TTFFont;
     })();
 
-    /************************************************************************************************/
-    /* function : Data                                                                              */
-    /* comment : The ttf data decoded and stored in an array is read and written to the Data object.*/
-    /************************************************************************************************/
     var Data = (function () {
         function Data(data) {
             this.data = data != null ? data : [];
@@ -374,10 +343,6 @@
     var Directory = (function () {
         var checksum;
 
-        /*****************************************************************************************************/
-        /* function : Directory generator                                                                    */
-        /* comment : Initialize the offset, tag, length, and checksum for each table for the font to be used.*/
-        /*****************************************************************************************************/
         function Directory(data) {
             var entry, i, _i, _ref;
             this.scalarType = data.readInt();
@@ -396,10 +361,6 @@
                 this.tables[entry.tag] = entry;
             }
         }
-        /********************************************************************************************************/
-        /* function : encode                                                                                    */
-        /* comment : It encodes and stores the font table object and information used for the directory object. */
-        /********************************************************************************************************/
         Directory.prototype.encode = function (tables) {
             var adjustment, directory, directoryLength, entrySelector, headOffset, log2, offset, rangeShift, searchRange, sum, table, tableCount, tableData, tag;
             tableCount = Object.keys(tables).length;
@@ -440,10 +401,6 @@
             directory.writeUInt32(adjustment);
             return directory.data;
         };
-        /***************************************************************/
-        /* function : checksum                                         */
-        /* comment : Duplicate the table for the tag.                  */
-        /***************************************************************/
         checksum = function (data) {
             var i, sum, tmp, _i, _ref;
             data = __slice.call(data);
@@ -473,12 +430,8 @@
             child.prototype = new ctor();
             child.__super__ = parent.prototype;
             return child;
-        };;
+        };
 
-    /***************************************************************/
-    /* function : Table                                            */
-    /* comment : Save info for each table, and parse the table.    */
-    /***************************************************************/
     Table = (function () {
         function Table(file) {
             var info;
@@ -604,10 +557,6 @@
 
     })(Table);
 
-    /************************************************************************************/
-    /* function : CmapEntry                                                             */
-    /* comment : Cmap Initializes and encodes object information (required by pdf spec).*/
-    /************************************************************************************/
     var CmapEntry = (function () {
         function CmapEntry(data, offset) {
             var code, count, endCode, glyphId, glyphIds, i, idDelta, idRangeOffset, index, saveOffset, segCount, segCountX2, start, startCode, tail, _i, _j, _k, _len;
@@ -1096,10 +1045,6 @@
 
     })(Table);
 
-    /*********************************************************************************************************/
-    /* function : NameEntry                                                                                  */
-    /* comment : Store copyright information, platformID, encodingID, and languageID in the NameEntry object.*/
-    /*********************************************************************************************************/
     var NameEntry = (function () {
         function NameEntry(raw, entry) {
             this.raw = raw;
@@ -1576,10 +1521,6 @@
 
     })(Table);
 
-    /************************************************************************************/
-    /* function : invert                                                                */
-    /* comment : Change the object's (key: value) to create an object with (value: key).*/
-    /************************************************************************************/
     var invert = function (object) {
         var key, ret, val;
         ret = {};
