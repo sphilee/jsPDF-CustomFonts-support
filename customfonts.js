@@ -189,11 +189,11 @@
                 return ((_ref = this.subset) != null ? _ref.encodeText(text) : void 0) || text;
             }
         };
-        TTFFont.prototype.embedTTF = function () {
+        TTFFont.prototype.embedTTF = function (encoding) {
             var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph;
             data = this.subset.encode();
             fontfile = {};
-            fontfile = data;
+            fontfile = encoding === 'MacRomanEncoding' ? data : this.rawData;
             descriptor = {
                 Type: 'FontDescriptor',
                 FontName: this.subset.postscriptName,
@@ -208,6 +208,8 @@
                 XHeight: this.xHeight
             };
             firstChar = +Object.keys(this.subset.cmap)[0];
+            if (firstChar !== 33 && encoding === 'MacRomanEncoding')
+                return false;
             charWidths = (function () {
                 var _ref, _results;
                 _ref = this.subset.cmap;
@@ -219,7 +221,7 @@
                 return _results;
             }).call(this);
             cmap = toUnicodeCmap(this.subset.subset);
-            var dictionary = {
+            var dictionary = encoding === 'MacRomanEncoding' ? {
                 Type: 'Font',
                 BaseFont: this.subset.postscriptName,
                 Subtype: 'TrueType',
@@ -227,10 +229,65 @@
                 FirstChar: firstChar,
                 LastChar: firstChar + charWidths.length - 1,
                 Widths: charWidths,
-                Encoding: 'MacRomanEncoding',
+                Encoding: encoding,
                 ToUnicode: cmap
+            } : {
+                Type: 'Font',
+                BaseFont: this.subset.postscriptName,
+                Subtype: 'TrueType',
+                FontDescriptor: descriptor,
+                FirstChar: 0,
+                LastChar: 255,
+                Widths: makeWidths(this),
+                Encoding: encoding
             };
             return dictionary;
+        };
+
+        makeWidths = function (font) {
+            var widths = [];
+            for (var i = 0; i < 256; i++) {
+                widths[i] = 0;
+            }
+            var scale = 1000.0 / font.head.unitsPerEm;
+            var codeMap = font.cmap.unicode.codeMap;
+            var WinAnsiEncoding = {
+                402: 131,
+                8211: 150,
+                8212: 151,
+                8216: 145,
+                8217: 146,
+                8218: 130,
+                8220: 147,
+                8221: 148,
+                8222: 132,
+                8224: 134,
+                8225: 135,
+                8226: 149,
+                8230: 133,
+                8364: 128,
+                8240: 137,
+                8249: 139,
+                8250: 155,
+                710: 136,
+                8482: 153,
+                338: 140,
+                339: 156,
+                732: 152,
+                352: 138,
+                353: 154,
+                376: 159,
+                381: 142,
+                382: 158
+            };
+
+            Object.keys(codeMap).map(function (key) {
+                var WinAnsiEncodingValue = WinAnsiEncoding[key];
+                var AssignedValue = Math.round(font.hmtx.metrics[codeMap[key]].advance * scale);
+                WinAnsiEncodingValue ? widths[WinAnsiEncodingValue] = AssignedValue :
+                    key < 256 ? widths[key] = AssignedValue : undefined;
+            });
+            return widths;
         };
 
         toUnicodeCmap = function (map) {
