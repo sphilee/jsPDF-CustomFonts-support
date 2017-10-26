@@ -394,47 +394,42 @@ var jsPDF = (function (global) {
         }
 
         function makeFontTable(data) {
-          if (data.toString() !== "[object Object]") {
-            var table = newObject();
+          var objRef = '';
+          var tableNum;
+          if (data.Type === "Font") {
+            data.FontDescriptor = makeFontTable(data.FontDescriptor);
+            if (font.encoding === 'MacRomanEncoding') {
+              data.ToUnicode = makeFontTable(data.ToUnicode);
+            } else {
+              delete data.ToUnicode;
+              data.FirstChar = 0;
+              data.LastChar = 255;
+              data.Encoding = font.encoding;
+              data.Widths = makeWidths();
+            }
+            tableNum = newObject();
+            out(jsPDF.API.PDFObject.convert(data));
+          } else if (data.Type === "FontDescriptor") {
+            data.FontFile2 = font.encoding === 'MacRomanEncoding' ?
+              makeFontTable(data.FontFile2) :
+              makeFontTable(font.metadata.rawData);
+            tableNum = newObject();
+            out(jsPDF.API.PDFObject.convert(data));
+            objRef = ' 0 R';
+          } else {
+            tableNum = newObject();
             out('<</Length1 ' + data.length + '>>');
             out('stream');
             (Array.isArray(data) || data.constructor === Uint8Array) ? out(toString(data)): out(data)
             out('endstream');
-            out('endobj');
-            return table + ' 0 R';
-          } else {
-            if (data.Type === "Font") {
-              if (data.Widths.length) {
-                if (data.ToUnicode)
-                  data.ToUnicode = makeFontTable(data.ToUnicode);
-                if (data.FontDescriptor)
-                  data.FontDescriptor = makeFontTable(data.FontDescriptor);
-              } else {
-                data.ToUnicode = null;
-                data.FirstChar = 0;
-                data.LastChar = 255;
-                data.Encoding = font.encoding;
-                data.Widths = makeWidths();
-              }
-              var table = newObject();
-              out(jsPDF.API.PDFObject.convert(data));
-              out('endobj');
-              return table;
-            } else if (data.Type === "FontDescriptor") {
-              var table = newObject();
-              out(jsPDF.API.PDFObject.convert(data));
-              out('endobj');
-              return table + ' 0 R';
-            }
+            objRef = ' 0 R';
           }
+          out('endobj');
+          return tableNum + objRef;
         }
 
         if ((font.id).slice(1) >= 14) {
           var dictionary = font.metadata.embedTTF();
-          dictionary.FontDescriptor.FontFile2 = font.encoding === 'MacRomanEncoding' ?
-            makeFontTable(dictionary.FontDescriptor.FontFile2) :
-            makeFontTable(font.metadata.rawData);
-
           font.objectNumber = makeFontTable(dictionary);
         } else {
           font.objectNumber = newObject();
