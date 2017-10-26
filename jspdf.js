@@ -410,14 +410,15 @@ var jsPDF = (function (global) {
             out('endobj');
           } else {
             out(jsPDF.API.PDFObject.convert(data));
+            out('endobj');
           }
           return table + ' 0 R';
         }
         if (font.encoding === 'MacRomanEncoding') {
           var dictionary = font.metadata.embedTTF();
           dictionary.FontDescriptor.FontFile2 = makeFontTable(dictionary.FontDescriptor.FontFile2);
-
           dictionary.FontDescriptor = makeFontTable(dictionary.FontDescriptor);
+          dictionary.ToUnicode = makeFontTable(dictionary.ToUnicode);
 
           font.objectNumber = newObject();
           out(jsPDF.API.PDFObject.convert(dictionary));

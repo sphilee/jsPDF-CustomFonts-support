@@ -2114,7 +2114,7 @@
                 })()).join(' ');
                 return '[' + items + ']';
             } else if (typeof object === 'string') {
-                return '/' + object;
+                return object.indexOf(' 0 R') === -1 ? '/' + object : object;
             } else if (object != null ? object.isString : void 0) {
                 return '(' + object + ')';
             } else if (object instanceof PDFReference) {
