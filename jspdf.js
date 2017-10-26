@@ -363,105 +363,69 @@ var jsPDF = (function (global) {
         out('endobj');
         events.publish('postPutPages');
       },
-      toString = function (fontfile) {
-        var i = 0;
-        var length = fontfile.length;
-
-        var strings = "";
-        for (var i = 0; i < length; i++) {
-          strings += String.fromCharCode(fontfile[i]);
-        }
-        return strings;
-      },
-      makeWidths = function (font) {
-        var widths = [];
-        var scale = 1000.0 / font.metadata.head.unitsPerEm;
-        var codeMap = font.metadata.cmap.unicode.codeMap;
-        var encodingBlock = fonts["F1"].metadata.Unicode.encoding.WinAnsiEncoding;
-
-        Object.keys(codeMap).map(function (key) {
-          var value = codeMap[key];
-          var valueWinAnsi = encodingBlock[key];
-          if (valueWinAnsi) {
-            widths[valueWinAnsi] = Math.round(font.metadata.hmtx.metrics[value].advance * scale);
-          } else {
-            if (key < 256)
-              widths[key] = Math.round(font.metadata.hmtx.metrics[value].advance * scale);
-          }
-        });
-        for (var i = 0; i < 256; i++) {
-          if (widths[i] === undefined)
-            widths[i] = 0;
-        }
-        return widths;
-      },
       putFont = function (font) {
-        if (font.encoding === 'MacRomanEncoding') {
-          var fontFile2 = toString(font.metadata.subset.encode());
-          var firstChar = +Object.keys(font.metadata.subset.cmap)[0];
-          if (!firstChar) {
-            delete fonts[font.id];
-            return this;
+        function toString(fontfile) {
+          var i = 0;
+          var length = fontfile.length;
+
+          var strings = "";
+          for (var i = 0; i < length; i++) {
+            strings += String.fromCharCode(fontfile[i]);
           }
-          var charWidths = (function () {
-            var _ref, _results;
-            _ref = font.metadata.subset.cmap;
-            _results = [];
-            for (var code in _ref) {
-              var glyph = _ref[code];
-              _results.push(Math.round(font.metadata.widthOfGlyph(glyph)));
+          return strings;
+        }
+
+        function makeWidths(font) {
+          var widths = [];
+          var scale = 1000.0 / font.metadata.head.unitsPerEm;
+          var codeMap = font.metadata.cmap.unicode.codeMap;
+          var encodingBlock = fonts["F1"].metadata.Unicode.encoding.WinAnsiEncoding;
+
+          Object.keys(codeMap).map(function (key) {
+            var value = codeMap[key];
+            var valueWinAnsi = encodingBlock[key];
+            if (valueWinAnsi) {
+              widths[valueWinAnsi] = Math.round(font.metadata.hmtx.metrics[value].advance * scale);
+            } else {
+              if (key < 256)
+                widths[key] = Math.round(font.metadata.hmtx.metrics[value].advance * scale);
             }
-            return _results;
-          }).call(this);
-          var fontTable = newObject();
-          out('<<');
-          out('/Length1 ' + fontFile2.length);
-          out('>>');
-          out('stream');
-          out(fontFile2);
-          out('endstream');
-          out('endobj');
-          var fontDescriptor = newObject();
-          out('<<');
-          out('/Type /FontDescriptor');
-          out('/FontName /' + font.metadata.subset.postscriptName);
-          out('/FontFile2 ' + fontTable + ' 0 R');
-          out('/FontBBox ' + jsPDF.API.PDFObject.convert(font.metadata.bbox));
-          out('/Flags ' + font.metadata.flags);
-          out('/StemV ' + font.metadata.stemV);
-          out('/ItalicAngle ' + font.metadata.italicAngle);
-          out('/Ascent ' + font.metadata.ascender);
-          out('/Descent ' + font.metadata.decender);
-          out('/CapHeight ' + font.metadata.capHeight);
-          out('/XHeight ' + font.metadata.xHeight);
-          out('>>');
-          out('endobj');
-          var ToUnicode = newObject();
-          out('<<');
-          out('/Length ' + font.metadata.subset.unicodeCmap.length);
-          out('>>');
-          out('stream');
-          out(font.metadata.subset.unicodeCmap);
-          out('endstream');
-          out('endobj');
+          });
+          for (var i = 0; i < 256; i++) {
+            if (widths[i] === undefined)
+              widths[i] = 0;
+          }
+          return widths;
+        }
+
+        function makeFontTable(data) {
+          var table = newObject();
+          if (Array.isArray(data)) {
+            out('<<');
+            out('/Length1 ' + data.length);
+            out('>>');
+            out('stream');
+            out(toString(data));
+            out('endstream');
+            out('endobj');
+          } else {
+            out(jsPDF.API.PDFObject.convert(data));
+          }
+          return table + ' 0 R';
+        }
+        if (font.encoding === 'MacRomanEncoding') {
+          var dictionary = font.metadata.embedTTF();
+          dictionary.FontDescriptor.FontFile2 = makeFontTable(dictionary.FontDescriptor.FontFile2);
+
+          dictionary.FontDescriptor = makeFontTable(dictionary.FontDescriptor);
+
           font.objectNumber = newObject();
-          out('<<');
-          out('/Type /Font');
-          out('/BaseFont /' + font.metadata.subset.postscriptName);
-          out('/Subtype /TrueType');
-          out('/FontDescriptor ' + fontDescriptor + ' 0 R');
-          out('/FirstChar ' + firstChar);
-          out('/LastChar ' + (firstChar + charWidths.length - 1));
-          out('/Widths ' + jsPDF.API.PDFObject.convert(charWidths));
-          out('/Encoding /' + font.encoding);
-          out('/ToUnicode ' + ToUnicode + ' 0 R');
-          out('>>');
-          out('endobj');
+          out(jsPDF.API.PDFObject.convert(dictionary));
+
         } else if ((font.id).slice(1) >= 14 && font.encoding === 'WinAnsiEncoding') {
           var fontFile2 = toString(font.metadata.rawData);
           var fontTable = newObject();
           out('<<');
-          out('/Length ' + fontFile2.length);
           out('/Length1 ' + fontFile2.length);
           out('>>');
           out('stream');
