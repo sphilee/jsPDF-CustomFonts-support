@@ -189,10 +189,8 @@
                 return ((_ref = this.subset) != null ? _ref.encodeText(text) : void 0) || text;
             }
         };
-        TTFFont.prototype.embedTTF = function (encoding, jsPDFobjectNumber) {
-            var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph, out, objectNumber;
-            objectNumber = jsPDFobjectNumber;
-            out = [];
+        TTFFont.prototype.embedTTF = function (encoding, newObject, out) {
+            var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph;
             data = this.subset.encode();
             fontfile = {};
             fontfile = encoding === 'MacRomanEncoding' ? data : this.rawData;
@@ -243,7 +241,7 @@
                 Widths: makeWidths(this),
                 Encoding: encoding
             };
-            makeFontTable(dictionary);
+            return makeFontTable(dictionary);
 
             function makeFontTable(data) {
                 var objRef = '';
@@ -253,38 +251,24 @@
                         data.ToUnicode = makeFontTable(data.ToUnicode);
                     data.FontDescriptor = makeFontTable(data.FontDescriptor);
                     tableNumber = newObject();
-                    out.push(PDFObject.convert(data));
+                    out(PDFObject.convert(data));
                 } else if (data.Type === "FontDescriptor") {
                     data.FontFile2 = makeFontTable(data.FontFile2);
                     tableNumber = newObject();
-                    out.push(PDFObject.convert(data));
+                    out(PDFObject.convert(data));
                     objRef = ' 0 R';
                 } else {
                     tableNumber = newObject();
-                    out.push('<</Length1 ' + data.length + '>>');
-                    out.push('stream');
-                    (Array.isArray(data) || data.constructor === Uint8Array) ? out.push(toString(data)): out.push(data)
-                    out.push('endstream');
+                    out('<</Length1 ' + data.length + '>>');
+                    out('stream');
+                    (Array.isArray(data) || data.constructor === Uint8Array) ? out(toString(data)): out(data)
+                    out('endstream');
                     objRef = ' 0 R';
                 }
-                out.push('endobj');
+                out('endobj');
                 return tableNumber + objRef;
             };
-
-            function newObject() {
-                // Begin a new object
-                objectNumber++;
-                content_length += string.length + 1;
-                offsets[objectNumber] = content_length;
-                out.push(objectNumber + ' 0 obj');
-                return objectNumber;
-            };
-
-
-            return [out.join("\r\n"), objectNumber, offsets];
         };
-
-
 
         toString = function (fontfile) {
             var strings = [];
@@ -363,23 +347,6 @@
             return unicodeMap += 'endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend';
         };
 
-        TTFFont.prototype.finalize = function () {
-            var chunk, _i, _len, _ref;
-            newObject();
-            this.document._write(PDFObject.convert(this.dictionary));
-            if (this.chunks.length) {
-                out('stream');
-                _ref = this.chunks;
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                    chunk = _ref[_i];
-                    out(chunk);
-                }
-                this.chunks.length = 0;
-                out('\nendstream');
-            }
-            out('endobj');
-            return this.document._refEnd(this);
-        };
         return TTFFont;
     })();
 

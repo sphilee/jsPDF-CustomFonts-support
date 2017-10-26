@@ -364,10 +364,9 @@ var jsPDF = (function (global) {
         events.publish('postPutPages');
       },
       putFont = function (font) {
-
         if ((font.id).slice(1) >= 14) {
-          var dictionary = font.metadata.embedTTF(font.encoding, objectNumber);
-          dictionary ? (font.objectNumber = objectNumber = dictionary[1], out(dictionary[0])) : delete fonts[font.id];
+          var dictionary = font.metadata.embedTTF(font.encoding, newObject, out);
+          dictionary ? font.objectNumber = dictionary : delete fonts[font.id];
         } else {
           font.objectNumber = newObject();
           out('<</BaseFont/' + font.postScriptName + '/Type/Font');
