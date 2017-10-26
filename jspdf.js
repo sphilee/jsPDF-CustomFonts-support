@@ -365,43 +365,9 @@ var jsPDF = (function (global) {
       },
       putFont = function (font) {
 
-        function toString(fontfile) {
-          var strings = [];
-          for (var i = 0, length = fontfile.length; i < length; i++) {
-            strings.push(String.fromCharCode(fontfile[i]));
-          }
-          return strings.join('');
-        }
-
-        function makeFontTable(data) {
-          var objRef = '';
-          var tableNumber;
-          if (data.Type === "Font") {
-            if (font.encoding === 'MacRomanEncoding')
-              data.ToUnicode = makeFontTable(data.ToUnicode);
-            data.FontDescriptor = makeFontTable(data.FontDescriptor);
-            tableNumber = newObject();
-            out(jsPDF.API.PDFObject.convert(data));
-          } else if (data.Type === "FontDescriptor") {
-            data.FontFile2 = makeFontTable(data.FontFile2);
-            tableNumber = newObject();
-            out(jsPDF.API.PDFObject.convert(data));
-            objRef = ' 0 R';
-          } else {
-            tableNumber = newObject();
-            out('<</Length1 ' + data.length + '>>');
-            out('stream');
-            (Array.isArray(data) || data.constructor === Uint8Array) ? out(toString(data)): out(data)
-            out('endstream');
-            objRef = ' 0 R';
-          }
-          out('endobj');
-          return tableNumber + objRef;
-        }
-
         if ((font.id).slice(1) >= 14) {
-          var dictionary = font.metadata.embedTTF(font.encoding);
-          dictionary ? font.objectNumber = makeFontTable(dictionary) : delete fonts[font.id];
+          var dictionary = font.metadata.embedTTF(font.encoding, objectNumber);
+          dictionary ? (font.objectNumber = objectNumber = dictionary[1], out(dictionary[0])) : delete fonts[font.id];
         } else {
           font.objectNumber = newObject();
           out('<</BaseFont/' + font.postScriptName + '/Type/Font');

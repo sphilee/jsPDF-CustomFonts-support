@@ -189,8 +189,10 @@
                 return ((_ref = this.subset) != null ? _ref.encodeText(text) : void 0) || text;
             }
         };
-        TTFFont.prototype.embedTTF = function (encoding) {
-            var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph;
+        TTFFont.prototype.embedTTF = function (encoding, jsPDFobjectNumber) {
+            var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph, out, objectNumber;
+            objectNumber = jsPDFobjectNumber;
+            out = [];
             data = this.subset.encode();
             fontfile = {};
             fontfile = encoding === 'MacRomanEncoding' ? data : this.rawData;
@@ -241,7 +243,55 @@
                 Widths: makeWidths(this),
                 Encoding: encoding
             };
-            return dictionary;
+            makeFontTable(dictionary);
+
+            function makeFontTable(data) {
+                var objRef = '';
+                var tableNumber;
+                if (data.Type === "Font") {
+                    if (data.ToUnicode)
+                        data.ToUnicode = makeFontTable(data.ToUnicode);
+                    data.FontDescriptor = makeFontTable(data.FontDescriptor);
+                    tableNumber = newObject();
+                    out.push(PDFObject.convert(data));
+                } else if (data.Type === "FontDescriptor") {
+                    data.FontFile2 = makeFontTable(data.FontFile2);
+                    tableNumber = newObject();
+                    out.push(PDFObject.convert(data));
+                    objRef = ' 0 R';
+                } else {
+                    tableNumber = newObject();
+                    out.push('<</Length1 ' + data.length + '>>');
+                    out.push('stream');
+                    (Array.isArray(data) || data.constructor === Uint8Array) ? out.push(toString(data)): out.push(data)
+                    out.push('endstream');
+                    objRef = ' 0 R';
+                }
+                out.push('endobj');
+                return tableNumber + objRef;
+            };
+
+            function newObject() {
+                // Begin a new object
+                objectNumber++;
+                content_length += string.length + 1;
+                offsets[objectNumber] = content_length;
+                out.push(objectNumber + ' 0 obj');
+                return objectNumber;
+            };
+
+
+            return [out.join("\r\n"), objectNumber, offsets];
+        };
+
+
+
+        toString = function (fontfile) {
+            var strings = [];
+            for (var i = 0, length = fontfile.length; i < length; i++) {
+                strings.push(String.fromCharCode(fontfile[i]));
+            }
+            return strings.join('');
         };
 
         makeWidths = function (font) {
@@ -2148,7 +2198,7 @@
 
     })();
 
-    jsPDFAPI.PDFObject = (function () {
+    var PDFObject = (function () {
         var pad, swapBytes;
 
         function PDFObject() {}
