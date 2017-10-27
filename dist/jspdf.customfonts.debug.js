@@ -129,8 +129,8 @@ var asyncGenerator = function () {
 
 /** @preserve
  * jsPDF - PDF Document creation from JavaScript
- * Version 0.0.2 Built on 2017-10-27T02:41:10.783Z
- *                           CommitID 69fec56e6a
+ * Version 0.0.2 Built on 2017-10-27T04:32:08.983Z
+ *                           CommitID 2e2c6ed8b5
  *
  * Copyright (c) 2010-2016 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
  *               2010 Aaron Spike, https://github.com/acspike
@@ -4429,6 +4429,57 @@ var jsPDF = function (global) {
             };
         }
     }]);
+})(jsPDF.API);
+
+/**
+ * jsPDF virtual FileSystem functionality
+ *
+ * Licensed under the MIT License.
+ * http://opensource.org/licenses/mit-license
+ */
+
+/**
+* Use the VFS to handle files
+*/
+
+(function (jsPDFAPI) {
+    "use strict";
+
+    var VFS = {};
+
+    /* Check if the file exists in the VFS
+    * @returns {boolean}
+    * @name existsFileInVFS
+    * @example
+    * doc.existsFileInVFS("someFile.txt");
+    */
+    jsPDFAPI.existsFileInVFS = function (filename) {
+        return VFS.hasOwnProperty(filename);
+    };
+
+    /* Add a file to the VFS
+    * @returns {jsPDF}
+    * @name addFileToVFS
+    * @example
+    * doc.addFileToVFS("someFile.txt", "BADFACE1");
+    */
+    jsPDFAPI.addFileToVFS = function (filename, filecontent) {
+        VFS[filename] = filecontent;
+        return this;
+    };
+
+    /* Get the file from the VFS
+    * @returns {string}
+    * @name addFileToVFS
+    * @example
+    * doc.getFileFromVFS("someFile.txt");
+    */
+    jsPDFAPI.getFileFromVFS = function (filename) {
+        if (VFS.hasOwnProperty(filename)) {
+            return VFS[filename];
+        }
+        return null;
+    };
 })(jsPDF.API);
 
 /* FileSaver.js
