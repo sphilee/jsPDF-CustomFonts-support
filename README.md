@@ -21,6 +21,15 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 0.2 support multiline text
 
+
+### Install
+
+Download and include [jspdf.customfonts.min.js](https://raw.githubusercontent.com/sphilee/jsPDF-CustomFonts-support/master/dist/jspdf.customfonts.min.js).
+
+You can also get the plugin with a package manager:
+- ```npm install jspdf-customfonts```
+
+
 ## Getting Started
 
 This document will walk you through the basics of jsPDF and will show you how to create PDF files in the browser.
@@ -38,7 +47,7 @@ To begin with the default configuration, you should include two files:
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>jsPDF customfonts example</title>
     <script language="javascript" type="text/javascript" src="./dist/jspdf.customfonts.min.js"></script>
-    <script language="javascript" type="text/javascript" src="./defaultVFS.js"></script>
+    <script language="javascript" type="text/javascript" src="defaultVFS.js"></script>
 </head>
 <body>
 ...
