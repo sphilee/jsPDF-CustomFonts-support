@@ -1,5 +1,4 @@
 # jsPDF-CustomFonts-support
-===============
 [![Build Status](https://travis-ci.org/sphilee/jsPDF-CustomFonts-support.svg?branch=master)](https://travis-ci.org/sphilee/jsPDF-CustomFonts-support/branches)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
