@@ -26,7 +26,7 @@ This document will walk you through the basics of jsPDF and will show you how to
 To begin with the default configuration, you should include two files:
 
 * **./dist/jspdf.customfonts.min.js**,
-* **./plugins/vfs.js** - default font definition (it contains 4 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
+* **defaultVFS.js** - default font definition (it contains 4 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
 
 ```html
 <!DOCTYPE html>
@@ -36,7 +36,7 @@ To begin with the default configuration, you should include two files:
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>jsPDF customfonts example</title>
     <script language="javascript" type="text/javascript" src="./dist/jspdf.customfonts.min.js"></script>
-    <script language="javascript" type="text/javascript" src="./plugins/vfs.js"></script>
+    <script language="javascript" type="text/javascript" src="./defaultVFS.js"></script>
 </head>
 <body>
 ...
@@ -46,7 +46,6 @@ To begin with the default configuration, you should include two files:
 
 ```javascript
 doc.addFont(fileName, fontName, fontStyle);
-
 
 ```
 
