@@ -23,14 +23,10 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 This document will walk you through the basics of jsPDF and will show you how to create PDF files in the browser.
 
-To begin with the default configuration, you should include six files:
+To begin with the default configuration, you should include two files:
 
-* **jspdf.js**,
-* **FileSaver.js**,
-* **split_text_to_size.js**,
-* **standard_fonts_metrics.js**,
-* **customfonts.js**,
-* **vfs_fonts.js** - default font definition (it contains 4 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
+* **./dist/jspdf.customfonts.min.js**,
+* **./plugins/vfs.js** - default font definition (it contains 4 Fonts, you can however [use custom fonts instead](https://www.giftofspeed.com/base64-encoder/))
 
 ```html
 <!DOCTYPE html>
@@ -39,12 +35,8 @@ To begin with the default configuration, you should include six files:
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>jsPDF customfonts example</title>
-    <script language="javascript" type="text/javascript" src="./plugins/FileSaver.js"></script>
-    <script language="javascript" type="text/javascript" src="./plugins/split_text_to_size.js"></script>
-    <script language="javascript" type="text/javascript" src="./plugins/standard_fonts_metrics.js"></script>
-    <script language="javascript" type="text/javascript" src="jspdf.js"></script>
-    <script language="javascript" type="text/javascript" src="customfonts.js"></script>
-    <script language="javascript" type="text/javascript" src="vfs_fonts.js"></script>
+    <script language="javascript" type="text/javascript" src="./dist/jspdf.customfonts.min.js"></script>
+    <script language="javascript" type="text/javascript" src="./plugins/vfs.js"></script>
 </head>
 <body>
 ...
