@@ -4,14 +4,13 @@
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>jsPDF customfonts example</title>
-    <script language="javascript" type="text/javascript" src="./dist/jspdf.customfonts.min.js"></script>
-    <script language="javascript" type="text/javascript" src="./plugins/vfs.js"></script>
+    <script language="javascript" type="text/javascript" src="./dist/jspdf.customfonts.debug.js"></script>
+    <script language="javascript" type="text/javascript" src="./defaultVFS.js"></script>
 </head>
 
 <body>
     <script>
         var doc = new jsPDF();
-
 
         doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal');
         doc.addFont('roundedMgenplus.ttf', 'roundedMgenplus', 'normal');
