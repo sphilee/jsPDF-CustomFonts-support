@@ -65,7 +65,6 @@ doc.addFont(fileName, fontName, fontStyle);
 ```javascript
 var doc = new jsPDF();
 
-
 doc.addFont('HMKMMAG.TTF', 'MagicR', 'normal');
 doc.addFont('roundedMgenplus.ttf', 'roundedMgenplus', 'normal');
 doc.addFont('gothic.ttf', 'LiLing', 'normal');
@@ -84,17 +83,17 @@ doc.setFont('GuardianSans');
 doc.text(15, 60, 'Good morning. Nice to meet you.');
 
 //multi-lines Test
-doc.setMaxWidth(150);
-doc.text(15, 75,
-    'Lorem ipsum dolor sit amet, consectetur adipisicing elit,' +
+var paragraph = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit,' +
     ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
     ' Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris' +
     ' nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor ' +
     'in reprehenderit in voluptate velit esse cillum dolore eu fugiat ' +
     'nulla pariatur. Excepteur sint occaecat cupidatat non proident, ' +
-    'sunt in culpa qui officia deserunt mollit anim id est laborum.'
-);
-doc.save('jspdf.pdf');
+    'sunt in culpa qui officia deserunt mollit anim id est laborum.';
+var lines = doc.splitTextToSize(paragraph, 150);
+doc.text(15, 75, lines);
+
+doc.save('custom_fonts.pdf');
 
 ```
 

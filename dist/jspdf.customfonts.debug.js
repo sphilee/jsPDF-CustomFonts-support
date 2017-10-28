@@ -129,8 +129,8 @@ var asyncGenerator = function () {
 
 /** @preserve
  * jsPDF - PDF Document creation from JavaScript
- * Version 0.0.2 Built on 2017-10-27T05:57:02.155Z
- *                           CommitID 41650af535
+ * Version 0.0.2 Built on 2017-10-28T10:35:51.233Z
+ *                           CommitID fe5705ed92
  *
  * Copyright (c) 2010-2016 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
  *               2010 Aaron Spike, https://github.com/acspike
@@ -311,7 +311,6 @@ var jsPDF = function (global) {
         drawColor = options.drawColor || '0 G',
         activeFontSize = options.fontSize || 16,
         activeCharSpace = options.charSpace || 0,
-        activeMaxWidth = options.maxWidth || 0,
         lineHeightProportion = options.lineHeight || 1.15,
         lineWidth = options.lineWidth || 0.200025,
         // 2mm
@@ -1218,6 +1217,9 @@ var jsPDF = function (global) {
       'getFontSize': function getFontSize() {
         return activeFontSize;
       },
+      'getCharSpace': function getCharSpace() {
+        return activeCharSpace;
+      },
       'getLineHeight': function getLineHeight() {
         return activeFontSize * lineHeightProportion;
       },
@@ -1420,86 +1422,6 @@ var jsPDF = function (global) {
         s = s.split("\t").join(Array(options.TabLen || 9).join(" "));
         return pdfEscape(s, flags);
       }
-      /**
-      Returns a widths of string in a given font, if the font size is set as 1 point.
-        In other words, this is "proportional" value. For 1 unit of font size, the length
-      of the string will be that much.
-        Multiply by font size to get actual width in *points*
-      Then divide by 72 to get inches or divide by (72/25.6) to get 'mm' etc.
-        @public
-      @function
-      @param
-      @returns {Type}
-      */
-      function getStringUnitWidth(text, options) {
-        var result = 0;
-        if (options.font.id.slice(1) >= 14) {
-          result = options.font.metadata.widthOfString(text, options.fontSize, options.charSpace);
-        } else {
-          result = getArraySum(getCharWidthsArray(text, options)) * options.fontSize;
-        }
-        return result;
-      }
-
-      /**
-      Returns an array of length matching length of the 'word' string, with each
-      cell ocupied by the width of the char in that position.
-        @function
-      @param word {String}
-      @param widths {Object}
-      @param kerning {Object}
-      @returns {Array}
-      */
-      function getCharWidthsArray(text, options) {
-        options = options || {};
-
-        var widths = options.widths ? options.widths : options.font.metadata.Unicode.widths;
-        var widthsFractionOf = widths.fof ? widths.fof : 1;
-        var kerning = options.kerning ? options.kerning : options.font.metadata.Unicode.kerning;
-        var kerningFractionOf = kerning.fof ? kerning.fof : 1;
-
-        var i;
-        var l;
-        var char_code;
-        var prior_char_code = 0; //for kerning
-        var default_char_width = widths[0] || widthsFractionOf;
-        var output = [];
-
-        for (i = 0, l = text.length; i < l; i++) {
-          char_code = text.charCodeAt(i);
-          output.push((widths[char_code] || default_char_width) / widthsFractionOf + (kerning[char_code] && kerning[char_code][prior_char_code] || 0) / kerningFractionOf);
-          prior_char_code = char_code;
-        }
-
-        return output;
-      }
-
-      function getArraySum(array) {
-        var i = array.length;
-        var output = 0;
-
-        while (i) {
-          i--;
-          output += array[i];
-        }
-
-        return output;
-      }
-
-      function encode(font, text) {
-        font.use(text);
-        text = font.encode(text);
-        text = function () {
-          var _results = [];
-
-          for (var i = 0, _ref2 = text.length; 0 <= _ref2 ? i < _ref2 : i > _ref2; 0 <= _ref2 ? i++ : i--) {
-            _results.push(text.charCodeAt(i).toString(16));
-          }
-          return _results;
-        }().join('');
-
-        return text;
-      }
 
       // Pre-August-2012 the order of arguments was function(x, y, text, flags)
       // in effort to make all calls have similar signature like
@@ -1526,65 +1448,6 @@ var jsPDF = function (global) {
           text = [text];
         }
       }
-
-      //multiline
-      var maxWidth = activeMaxWidth || 0;
-      var activeFont = fonts[activeFontKey];
-      var k = this.internal.scaleFactor;
-
-      var widthOfSpace = getStringUnitWidth(" ", {
-        font: activeFont,
-        charSpace: activeCharSpace,
-        fontSize: activeFontSize
-      }) / k;
-
-      function splitByMaxWidth(value, maxWidth) {
-        var i = 0;
-        var lastBreak = 0;
-        var currentWidth = 0;
-        var resultingChunks = [];
-        var widthOfEachWord = [];
-        var currentChunk = [];
-        var listOfWords = [];
-        var result = [];
-
-        listOfWords = value.split(/ /g);
-
-        for (i = 0; i < listOfWords.length; i += 1) {
-          widthOfEachWord.push(getStringUnitWidth(listOfWords[i], {
-            font: activeFont,
-            charSpace: activeCharSpace,
-            fontSize: activeFontSize
-          }) / k);
-        }
-        for (i = 0; i < listOfWords.length; i += 1) {
-          currentChunk = widthOfEachWord.slice(lastBreak, i);
-          currentWidth = getArraySum(currentChunk) + widthOfSpace * (currentChunk.length - 1);
-          if (currentWidth >= maxWidth) {
-            resultingChunks.push(listOfWords.slice(lastBreak, i !== 0 ? i - 1 : 0).join(" "));
-            lastBreak = i !== 0 ? i - 1 : 0;
-            i -= 1;
-          } else if (i === widthOfEachWord.length - 1) {
-            resultingChunks.push(listOfWords.slice(lastBreak, widthOfEachWord.length).join(" "));
-          }
-        }
-        for (i = 0; i < resultingChunks.length; i += 1) {
-          result = result.concat(resultingChunks[i]);
-        }
-        return result;
-      }
-
-      function firstFitMethod(value, maxWidth) {
-        var j = 0;
-        var tmpText = [];
-        for (j = 0; j < value.length; j += 1) {
-          tmpText = tmpText.concat(splitByMaxWidth(value[j], maxWidth));
-        }
-        return tmpText;
-      }
-
-      if (maxWidth > 0) text = firstFitMethod(text, maxWidth);
-
       if (typeof angle === 'string') {
         align = angle;
         angle = null;
@@ -1635,7 +1498,8 @@ var jsPDF = function (global) {
         // we don't want to destroy  original text array, so cloning it
         var sa = text.concat(),
             da = [],
-            len = sa.length;
+            len = sa.length,
+            activeFont = fonts[activeFontKey];
         // we do array.join('text that must not be PDFescaped")
         // thus, pdfEscape each component separately
 
@@ -1648,11 +1512,7 @@ var jsPDF = function (global) {
               maxLineLength,
               leading = activeFontSize * lineHeightProportion,
               lineWidths = text.map(function (v) {
-            return getStringUnitWidth(v, {
-              font: activeFont,
-              charSpace: activeCharSpace,
-              fontSize: activeFontSize
-            }) / k;
+            return this.getStringUnitWidth(v) * activeFontSize / k;
           }, this);
           maxLineLength = Math.max.apply(Math, lineWidths);
           // The first line uses the "main" Td setting,
@@ -1672,7 +1532,7 @@ var jsPDF = function (global) {
             throw new Error('Unrecognized alignment option, use "center" or "right".');
           }
           prevX = x;
-          text = activeFont.encoding === "MacRomanEncoding" ? encode(activeFont.metadata, da[0]) : da[0];
+          text = activeFont.encoding === "MacRomanEncoding" ? activeFont.metadata.encode(activeFont.metadata.subset, da[0]) : da[0];
           for (var i = 1, len = da.length; i < len; i++) {
             var delta = maxLineLength - lineWidths[i];
             if (align === "center") delta /= 2;
@@ -1686,7 +1546,7 @@ var jsPDF = function (global) {
           }
         } else {
           text = activeFont.encoding === "MacRomanEncoding" ? da.map(function (out) {
-            return encode(activeFont.metadata, out);
+            return activeFont.metadata.encode(activeFont.metadata.subset, out);
           }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
         }
         text = activeFont.encoding === "MacRomanEncoding" ? '<' + text + '>' : '(' + text + ')';
@@ -2286,21 +2146,6 @@ var jsPDF = function (global) {
 
     API.setCharSpace = function (charSpace) {
       activeCharSpace = charSpace;
-      return this;
-    };
-
-    /**
-     * Initializes the maximum length of text for multi-lines that the user wants to be global..
-     *
-     * @param {Number} maxWidth
-     * @function
-     * @returns {jsPDF}
-     * @methodOf jsPDF#
-     * @name setMaxWidth
-     */
-
-    API.setMaxWidth = function (maxWidth) {
-      activeMaxWidth = maxWidth;
       return this;
     };
 
@@ -8978,6 +8823,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
  * ====================================================================
  */
 
+
 (function (API) {
 	'use strict';
 
@@ -8998,6 +8844,8 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 			options = {};
 		}
 
+		if (!!options.font) return [options.font.widthOfString(text, options.fontSize, options.charSpace) / options.fontSize];
+
 		var widths = options.widths ? options.widths : this.internal.getFont().metadata.Unicode.widths,
 		    widthsFractionOf = widths.fof ? widths.fof : 1,
 		    kerning = options.kerning ? options.kerning : this.internal.getFont().metadata.Unicode.kerning,
@@ -9009,6 +8857,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 		    l,
 		    char_code,
 		    prior_char_code = 0 // for kerning
+
 		,
 		    default_char_width = widths[0] || widthsFractionOf,
 		    output = [];
@@ -9025,6 +8874,7 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 		var i = array.length,
 		    output = 0;
 		while (i) {
+			
 			i--;
 			output += array[i];
 		}
@@ -9059,7 +8909,8 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 		    l = word.length,
 		    workingLen = 0;
 		while (i !== l && workingLen + widths_array[i] < firstLineMaxLen) {
-			workingLen += widths_array[i];i++;
+			workingLen += widths_array[i];
+			i++;
 		}
 		// this is first line.
 		answer.push(word.slice(0, i));
@@ -9073,7 +8924,8 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 				workingLen = 0;
 				startOfLine = i;
 			}
-			workingLen += widths_array[i];i++;
+			workingLen += widths_array[i];
+			i++;
 		}
 		if (startOfLine !== i) {
 			answer.push(word.slice(startOfLine, i));
@@ -9208,7 +9060,9 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 
 		var fsize = options.fontSize || this.internal.getFontSize(),
 		    newOptions = function (options) {
-			var widths = { 0: 1 },
+			var widths = {
+				0: 1
+			},
 			    kerning = {};
 
 			if (!options.widths || !options.kerning) {
@@ -9222,6 +9076,12 @@ AcroForm.internal.setBitPosition = function (variable, position, value) {
 					return {
 						widths: f.metadata[encoding].widths || widths,
 						kerning: f.metadata[encoding].kerning || kerning
+					};
+				} else {
+					return {
+						font: f.metadata,
+						fontSize: this.internal.getFontSize(),
+						charSpace: this.internal.getCharSpace()
 					};
 				}
 			} else {
@@ -9872,62 +9732,6 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
 (function (jsPDFAPI) {
     'use strict';
 
-    var PLUS = '+'.charCodeAt(0);
-    var SLASH = '/'.charCodeAt(0);
-    var NUMBER = '0'.charCodeAt(0);
-    var LOWER = 'a'.charCodeAt(0);
-    var UPPER = 'A'.charCodeAt(0);
-    var PLUS_URL_SAFE = '-'.charCodeAt(0);
-    var SLASH_URL_SAFE = '_'.charCodeAt(0);
-
-    var b64ToByteArray = function b64ToByteArray(b64) {
-        var i, j, l, tmp, placeHolders, arr;
-        if (b64.length % 4 > 0) {
-            throw new Error('Invalid string. Length must be a multiple of 4');
-        }
-        // the number of equal signs (place holders)
-        // if there are two placeholders, than the two characters before it
-        // represent one byte
-        // if there is only one, then the three characters before it represent 2 bytes
-        // this is just a cheap hack to not do indexOf twice
-        var len = b64.length;
-        placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0;
-        // base64 is 4/3 + up to two characters of the original data
-        arr = new Uint8Array(b64.length * 3 / 4 - placeHolders);
-        // if there are placeholders, only get up to the last complete 4 chars
-        l = placeHolders > 0 ? b64.length - 4 : b64.length;
-        var L = 0;
-
-        function push(v) {
-            arr[L++] = v;
-        }
-        for (i = 0, j = 0; i < l; i += 4, j += 3) {
-            tmp = decode(b64.charAt(i)) << 18 | decode(b64.charAt(i + 1)) << 12 | decode(b64.charAt(i + 2)) << 6 | decode(b64.charAt(i + 3));
-            push((tmp & 0xFF0000) >> 16);
-            push((tmp & 0xFF00) >> 8);
-            push(tmp & 0xFF);
-        }
-        if (placeHolders === 2) {
-            tmp = decode(b64.charAt(i)) << 2 | decode(b64.charAt(i + 1)) >> 4;
-            push(tmp & 0xFF);
-        } else if (placeHolders === 1) {
-            tmp = decode(b64.charAt(i)) << 10 | decode(b64.charAt(i + 1)) << 4 | decode(b64.charAt(i + 2)) >> 2;
-            push(tmp >> 8 & 0xFF);
-            push(tmp & 0xFF);
-        }
-        return arr;
-    };
-
-    var decode = function decode(elt) {
-        var code = elt.charCodeAt(0);
-        if (code === PLUS || code === PLUS_URL_SAFE) return 62; // '+'
-        if (code === SLASH || code === SLASH_URL_SAFE) return 63; // '/'
-        if (code < NUMBER) return -1; //no match
-        if (code < NUMBER + 10) return code - NUMBER + 26 + 26;
-        if (code < UPPER + 26) return code - UPPER;
-        if (code < LOWER + 26) return code - LOWER + 26;
-    };
-
     var TTFFont = function () {
         TTFFont.open = function (filename, name, vfs, encoding) {
             var contents;
@@ -10048,20 +9852,54 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
             gap = includeGap ? this.lineGap : 0;
             return (this.ascender + gap - this.decender) / 1000 * size;
         };
-        TTFFont.prototype.use = function (characters) {
-            var _ref;
-            return (_ref = this.subset) != null ? _ref.use(characters) : void 0;
-        };
-        TTFFont.prototype.encode = function (text) {
-            var _ref;
-            if (this.isAFM) {
-                return this.font.encodeText(text);
-            } else {
-                return ((_ref = this.subset) != null ? _ref.encodeText(text) : void 0) || text;
-            }
+        TTFFont.prototype.encode = function (font, text) {
+            font.use(text);
+
+            text = font.encodeText(text);
+            text = function () {
+                var _results = [];
+
+                for (var i = 0, _ref2 = text.length; 0 <= _ref2 ? i < _ref2 : i > _ref2; 0 <= _ref2 ? i++ : i--) {
+                    _results.push(text.charCodeAt(i).toString(16));
+                }
+                return _results;
+            }().join('');
+
+            return text;
         };
         TTFFont.prototype.embedTTF = function (encoding, newObject, out) {
+
+            /**
+             * It is a function to extract a table to make a custom font.
+             * Returns the object number.
+            @function
+            @param {Object} dictionary
+            @returns {Number} objectNumber
+            */
+            function makeFontTable(data) {
+                var tableNumber;
+                if (data.Type === "Font") {
+                    if (data.Encoding === 'MacRomanEncoding') data.ToUnicode = makeFontTable(data.ToUnicode) + ' 0 R';
+                    data.FontDescriptor = makeFontTable(data.FontDescriptor) + ' 0 R';
+                    tableNumber = newObject();
+                    out(PDFObject.convert(data));
+                } else if (data.Type === "FontDescriptor") {
+                    data.FontFile2 = makeFontTable(data.FontFile2) + ' 0 R';
+                    tableNumber = newObject();
+                    out(PDFObject.convert(data));
+                } else {
+                    tableNumber = newObject();
+                    out('<</Length1 ' + data.length + '>>');
+                    out('stream');
+                    Array.isArray(data) || data.constructor === Uint8Array ? out(toString(data)) : out(data);
+                    out('endstream');
+                }
+                out('endobj');
+                return tableNumber;
+            }
+
             var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph;
+
             data = this.subset.encode();
             fontfile = {};
             fontfile = encoding === 'MacRomanEncoding' ? data : this.rawData;
@@ -10112,31 +9950,62 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
                 Encoding: encoding
             };
             return makeFontTable(dictionary);
+        };
 
-            function makeFontTable(data) {
-                var objRef = '';
-                var tableNumber;
-                if (data.Type === "Font") {
-                    if (data.ToUnicode) data.ToUnicode = makeFontTable(data.ToUnicode);
-                    data.FontDescriptor = makeFontTable(data.FontDescriptor);
-                    tableNumber = newObject();
-                    out(PDFObject.convert(data));
-                } else if (data.Type === "FontDescriptor") {
-                    data.FontFile2 = makeFontTable(data.FontFile2);
-                    tableNumber = newObject();
-                    out(PDFObject.convert(data));
-                    objRef = ' 0 R';
-                } else {
-                    tableNumber = newObject();
-                    out('<</Length1 ' + data.length + '>>');
-                    out('stream');
-                    Array.isArray(data) || data.constructor === Uint8Array ? out(toString(data)) : out(data);
-                    out('endstream');
-                    objRef = ' 0 R';
-                }
-                out('endobj');
-                return tableNumber + objRef;
+        var b64ToByteArray = function b64ToByteArray(b64) {
+            var i, j, l, tmp, placeHolders, arr;
+            if (b64.length % 4 > 0) {
+                throw new Error('Invalid string. Length must be a multiple of 4');
             }
+            // the number of equal signs (place holders)
+            // if there are two placeholders, than the two characters before it
+            // represent one byte
+            // if there is only one, then the three characters before it represent 2 bytes
+            // this is just a cheap hack to not do indexOf twice
+            var len = b64.length;
+            placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0;
+            // base64 is 4/3 + up to two characters of the original data
+            arr = new Uint8Array(b64.length * 3 / 4 - placeHolders);
+            // if there are placeholders, only get up to the last complete 4 chars
+            l = placeHolders > 0 ? b64.length - 4 : b64.length;
+            var L = 0;
+
+            function push(v) {
+                arr[L++] = v;
+            }
+            for (i = 0, j = 0; i < l; i += 4, j += 3) {
+                tmp = decode(b64.charAt(i)) << 18 | decode(b64.charAt(i + 1)) << 12 | decode(b64.charAt(i + 2)) << 6 | decode(b64.charAt(i + 3));
+                push((tmp & 0xFF0000) >> 16);
+                push((tmp & 0xFF00) >> 8);
+                push(tmp & 0xFF);
+            }
+            if (placeHolders === 2) {
+                tmp = decode(b64.charAt(i)) << 2 | decode(b64.charAt(i + 1)) >> 4;
+                push(tmp & 0xFF);
+            } else if (placeHolders === 1) {
+                tmp = decode(b64.charAt(i)) << 10 | decode(b64.charAt(i + 1)) << 4 | decode(b64.charAt(i + 2)) >> 2;
+                push(tmp >> 8 & 0xFF);
+                push(tmp & 0xFF);
+            }
+            return arr;
+        };
+
+        var decode = function decode(elt) {
+            var PLUS = '+'.charCodeAt(0);
+            var SLASH = '/'.charCodeAt(0);
+            var NUMBER = '0'.charCodeAt(0);
+            var LOWER = 'a'.charCodeAt(0);
+            var UPPER = 'A'.charCodeAt(0);
+            var PLUS_URL_SAFE = '-'.charCodeAt(0);
+            var SLASH_URL_SAFE = '_'.charCodeAt(0);
+
+            var code = elt.charCodeAt(0);
+            if (code === PLUS || code === PLUS_URL_SAFE) return 62; // '+'
+            if (code === SLASH || code === SLASH_URL_SAFE) return 63; // '/'
+            if (code < NUMBER) return -1; //no match
+            if (code < NUMBER + 10) return code - NUMBER + 26 + 26;
+            if (code < UPPER + 26) return code - UPPER;
+            if (code < LOWER + 26) return code - LOWER + 26;
         };
 
         var toString = function toString(fontfile) {
@@ -10443,6 +10312,8 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
         };
         return Directory;
     }();
+
+    var __slice = [].slice;
 
     var __extends = function __extends(child, parent) {
         for (var key in parent) {
@@ -11191,6 +11062,51 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
         return NameTable;
     }(Table);
 
+    var successorOf = function successorOf(input) {
+        var added, alphabet, carry, i, index, isUpperCase, last, length, next, result;
+        alphabet = 'abcdefghijklmnopqrstuvwxyz';
+        length = alphabet.length;
+        result = input;
+        i = input.length;
+        while (i >= 0) {
+            last = input.charAt(--i);
+            if (isNaN(last)) {
+                index = alphabet.indexOf(last.toLowerCase());
+                if (index === -1) {
+                    next = last;
+                    carry = true;
+                } else {
+                    next = alphabet.charAt((index + 1) % length);
+                    isUpperCase = last === last.toUpperCase();
+                    if (isUpperCase) {
+                        next = next.toUpperCase();
+                    }
+                    carry = index + 1 >= length;
+                    if (carry && i === 0) {
+                        added = isUpperCase ? 'A' : 'a';
+                        result = added + next + result.slice(1);
+                        break;
+                    }
+                }
+            } else {
+                next = +last + 1;
+                carry = next > 9;
+                if (carry) {
+                    next = 0;
+                }
+                if (carry && i === 0) {
+                    result = '1' + next + result.slice(1);
+                    break;
+                }
+            }
+            result = result.slice(0, i) + next + result.slice(i + 1);
+            if (!carry) {
+                break;
+            }
+        }
+        return result;
+    };
+
     var MaxpTable = function (_super) {
         __extends(MaxpTable, _super);
 
@@ -11314,8 +11230,6 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
 
         return HmtxTable;
     }(Table);
-
-    var __slice = [].slice;
 
     var GlyfTable = function (_super) {
         __extends(GlyfTable, _super);
@@ -11531,68 +11445,6 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
         return LocaTable;
     }(Table);
 
-    var invert = function invert(object) {
-        var key, ret, val;
-        ret = {};
-        for (key in object) {
-            val = object[key];
-            ret[val] = key;
-        }
-        return ret;
-    };
-
-    var successorOf = function successorOf(input) {
-        var added, alphabet, carry, i, index, isUpperCase, last, length, next, result;
-        alphabet = 'abcdefghijklmnopqrstuvwxyz';
-        length = alphabet.length;
-        result = input;
-        i = input.length;
-        while (i >= 0) {
-            last = input.charAt(--i);
-            if (isNaN(last)) {
-                index = alphabet.indexOf(last.toLowerCase());
-                if (index === -1) {
-                    next = last;
-                    carry = true;
-                } else {
-                    next = alphabet.charAt((index + 1) % length);
-                    isUpperCase = last === last.toUpperCase();
-                    if (isUpperCase) {
-                        next = next.toUpperCase();
-                    }
-                    carry = index + 1 >= length;
-                    if (carry && i === 0) {
-                        added = isUpperCase ? 'A' : 'a';
-                        result = added + next + result.slice(1);
-                        break;
-                    }
-                }
-            } else {
-                next = +last + 1;
-                carry = next > 9;
-                if (carry) {
-                    next = 0;
-                }
-                if (carry && i === 0) {
-                    result = '1' + next + result.slice(1);
-                    break;
-                }
-            }
-            result = result.slice(0, i) + next + result.slice(i + 1);
-            if (!carry) {
-                break;
-            }
-        }
-        return result;
-    };
-
-    var __indexOf = [].indexOf || function (item) {
-        for (var i = 0, l = this.length; i < l; i++) {
-            if (i in this && this[i] === item) return i;
-        }
-        return -1;
-    };
-
     var Subset = function () {
         function Subset(font) {
             this.font = font;
@@ -11738,8 +11590,25 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
         return Subset;
     }();
 
+    var __indexOf = [].indexOf || function (item) {
+        for (var i = 0, l = this.length; i < l; i++) {
+            if (i in this && this[i] === item) return i;
+        }
+        return -1;
+    };
+
+    var invert = function invert(object) {
+        var key, ret, val;
+        ret = {};
+        for (key in object) {
+            val = object[key];
+            ret[val] = key;
+        }
+        return ret;
+    };
+
     var PDFObject = function () {
-        var pad, swapBytes;
+        var pad;
 
         function PDFObject() {}
 
@@ -11779,37 +11648,6 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
             }
         };
 
-        swapBytes = function swapBytes(buff) {
-            var a, i, l, _i, _ref;
-            l = buff.length;
-            if (l & 0x01) {
-                throw new Error("Buffer length must be even");
-            } else {
-                for (i = _i = 0, _ref = l - 1; _i < _ref; i = _i += 2) {
-                    a = buff[i];
-                    buff[i] = buff[i + 1];
-                    buff[i + 1] = a;
-                }
-            }
-            return buff;
-        };
-
-        PDFObject.s = function (string, swap) {
-            if (swap == null) {
-                swap = false;
-            }
-            string = string.replace(/\\/g, '\\\\\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-            if (swap) {
-                string = swapBytes(new Buffer('\uFEFF' + string, 'ucs-2')).toString('binary');
-            }
-            return {
-                isString: true,
-                toString: function toString() {
-                    return string;
-                }
-            };
-        };
-
         return PDFObject;
     }();
 
@@ -11817,11 +11655,6 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
         if (jsPDFAPI.existsFileInVFS(font.postScriptName)) {
             font.metadata = TTFFont.open(font.postScriptName, font.fontName, jsPDFAPI.getFileFromVFS(font.postScriptName), font.encoding);
             font.encoding = font.metadata.hmtx.widths.length > 500 ? "MacRomanEncoding" : "WinAnsiEncoding";
-            font.metadata.Unicode = font.metadata.Unicode || {
-                encoding: {},
-                kerning: {},
-                widths: []
-            };
         }
     }]);
 })(jsPDF.API);
