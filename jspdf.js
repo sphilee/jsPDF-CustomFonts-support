@@ -1400,22 +1400,6 @@ var jsPDF = (function (global) {
 
           return output;
         }
-
-        function encode(font, text) {
-          font.use(text);
-          text = font.encode(text);
-          text = ((function () {
-            var _results = [];
-
-            for (var i = 0, _ref2 = text.length; 0 <= _ref2 ? i < _ref2 : i > _ref2; 0 <= _ref2 ? i++ : i--) {
-              _results.push(text.charCodeAt(i).toString(16));
-            }
-            return _results;
-          })()).join('');
-
-          return text;
-        }
-
         // Pre-August-2012 the order of arguments was function(x, y, text, flags)
         // in effort to make all calls have similar signature like
         //   function(data, coordinates... , miscellaneous)
@@ -1599,7 +1583,7 @@ var jsPDF = (function (global) {
               );
             }
             prevX = x;
-            text = activeFont.encoding === "MacRomanEncoding" ? encode(activeFont.metadata, da[0]) : da[0];
+            text = activeFont.encoding === "MacRomanEncoding" ? activeFont.metadata.encode(activeFont.metadata.subset, da[0]) : da[0];
             for (var i = 1, len = da.length; i < len; i++) {
               var delta = maxLineLength - lineWidths[i];
               if (align === "center") delta /= 2;
@@ -1615,7 +1599,7 @@ var jsPDF = (function (global) {
             }
           } else {
             text = activeFont.encoding === "MacRomanEncoding" ? da.map(function (out) {
-              return encode(activeFont.metadata, out);
+              return activeFont.metadata.encode(activeFont.metadata.subset, out);
             }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
           }
           text = activeFont.encoding === "MacRomanEncoding" ? '<' + text + '>' : '(' + text + ')';
