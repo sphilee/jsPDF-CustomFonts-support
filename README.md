@@ -22,7 +22,7 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 0.2 support multiline text
 
 
-### Install
+## Install
 
 Download and include [jspdf.customfonts.min.js](https://raw.githubusercontent.com/sphilee/jsPDF-CustomFonts-support/master/dist/jspdf.customfonts.min.js).
 
