@@ -1949,11 +1949,6 @@
             if (jsPDFAPI.existsFileInVFS(font.postScriptName)) {
                 font.metadata = TTFFont.open(font.postScriptName, font.fontName, jsPDFAPI.getFileFromVFS(font.postScriptName), font.encoding);
                 font.encoding = font.metadata.hmtx.widths.length > 500 ? "MacRomanEncoding" : "WinAnsiEncoding";
-                font.metadata.Unicode = font.metadata.Unicode || {
-                    encoding: {},
-                    kerning: {},
-                    widths: []
-                };
             }
         }
     ]);
