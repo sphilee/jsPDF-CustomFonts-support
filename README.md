@@ -58,7 +58,7 @@ To begin with the default configuration, you should include two files:
 ## addFileToVFS Method
 
 ```javascript
-doc.addFileToVFS(filename, Base64content);
+doc.addFileToVFS(fileName, Base64content);
 ```
 
 ## addCustomFonts Method
