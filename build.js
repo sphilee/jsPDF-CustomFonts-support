@@ -58,7 +58,11 @@ function bundle(paths) {
       monkeyPatch(),
       rawjs({
         'jspdf.js': 'jsPDF',
-        'filesaver.tmp.js': 'saveAs'
+        'filesaver.tmp.js': 'saveAs',
+        'deflate.js': 'Deflater',
+        'zlib.js': 'FlateStream',
+        'css_colors.js': 'CssColors',
+        'html2pdf.js': 'html2pdf'
       }),
       babel({
         presets: ['es2015-rollup'],
