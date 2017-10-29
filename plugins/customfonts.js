@@ -122,10 +122,11 @@
             gap = includeGap ? this.lineGap : 0;
             return (this.ascender + gap - this.decender) / 1000 * size;
         };
-        TTFFont.prototype.encode = function (font, text) {
+        TTFFont.prototype.encode = function (font, text, reverse) {
             font.use(text);
 
-            text = font.encodeText(text);
+            text = reverse ? reverseString(font.encodeText(text)) : font.encodeText(text);
+
             text = ((function () {
                 var _results = [];
 
@@ -149,7 +150,7 @@
             function makeFontTable(data) {
                 var tableNumber;
                 if (data.Type === "Font") {
-                    if (data.Encoding === 'MacRomanEncoding') data.ToUnicode = makeFontTable(data.ToUnicode) + ' 0 R';
+                    if (isHex) data.ToUnicode = makeFontTable(data.ToUnicode) + ' 0 R';
                     data.FontDescriptor = makeFontTable(data.FontDescriptor) + ' 0 R';
                     tableNumber = newObject();
                     out(PDFObject.convert(data));
@@ -169,10 +170,10 @@
             }
 
             var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph;
-
+            var isHex = encoding === 'MacRomanEncoding' ? true : false;
             data = this.subset.encode();
             fontfile = {};
-            fontfile = encoding === 'MacRomanEncoding' ? data : this.rawData;
+            fontfile = isHex ? data : this.rawData;
             descriptor = {
                 Type: 'FontDescriptor',
                 FontName: this.subset.postscriptName,
@@ -187,7 +188,7 @@
                 XHeight: this.xHeight
             };
             firstChar = +Object.keys(this.subset.cmap)[0];
-            if (firstChar !== 33 && encoding === 'MacRomanEncoding')
+            if (firstChar !== 33 && isHex)
                 return false;
             charWidths = (function () {
                 var _ref, _results;
@@ -200,7 +201,7 @@
                 return _results;
             }).call(this);
             cmap = toUnicodeCmap(this.subset.subset);
-            var dictionary = encoding === 'MacRomanEncoding' ? {
+            var dictionary = isHex ? {
                 Type: 'Font',
                 BaseFont: this.subset.postscriptName,
                 Subtype: 'TrueType',
@@ -355,6 +356,10 @@
             }
             return unicodeMap += 'endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend';
         };
+
+        var reverseString = function (s) {
+            return s.split("").reverse().join("");
+        }
 
         return TTFFont;
     })();

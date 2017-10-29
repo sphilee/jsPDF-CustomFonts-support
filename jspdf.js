@@ -198,6 +198,7 @@ var jsPDF = (function (global) {
       drawColor = options.drawColor || '0 G',
       activeFontSize = options.fontSize || 16,
       activeCharSpace = options.charSpace || 0,
+      activeDirectionality = options.Directionality || false,
       lineHeightProportion = options.lineHeight || 1.15,
       lineWidth = options.lineWidth || 0.200025, // 2mm
       objectNumber = 2, // 'n' Current object number
@@ -1406,15 +1407,16 @@ var jsPDF = (function (global) {
         } else if (Object.prototype.toString.call(text) ===
           '[object Array]') {
           // we don't want to destroy  original text array, so cloning it
-          var sa = text.concat(),
-            da = [],
-            len = sa.length,
-            activeFont = fonts[activeFontKey];
+          var sa = text.concat();
+          var da = [];
+          var len = sa.length;
+          var activeFont = fonts[activeFontKey];
+          var isHex = activeFont.encoding === "MacRomanEncoding" ? true : false;
           // we do array.join('text that must not be PDFescaped")
           // thus, pdfEscape each component separately
 
           while (len--) {
-            da.push(activeFont.encoding === "MacRomanEncoding" ? sa.shift() : ESC(sa.shift()));
+            da.push(isHex ? sa.shift() : ESC(sa.shift()));
           }
           var linesLeft = Math.ceil((pageHeight - y - this._runningPageHeight) *
             k / (activeFontSize * lineHeightProportion));
@@ -1450,12 +1452,12 @@ var jsPDF = (function (global) {
               );
             }
             prevX = x;
-            text = activeFont.encoding === "MacRomanEncoding" ? activeFont.metadata.encode(activeFont.metadata.subset, da[0]) : da[0];
+            text = isHex ? activeFont.metadata.encode(activeFont.metadata.subset, da[0], activeDirectionality) : da[0];
             for (var i = 1, len = da.length; i < len; i++) {
               var delta = maxLineLength - lineWidths[i];
               if (align === "center") delta /= 2;
               // T* = x-offset leading Td ( text )
-              if (activeFont.encoding === "MacRomanEncoding") {
+              if (isHex) {
                 text += "> Tj\n" + ((left - prevX) + delta) + " -" + leading +
                   " Td <" + da[i];
               } else {
@@ -1465,11 +1467,11 @@ var jsPDF = (function (global) {
               prevX = left + delta;
             }
           } else {
-            text = activeFont.encoding === "MacRomanEncoding" ? da.map(function (out) {
-              return activeFont.metadata.encode(activeFont.metadata.subset, out);
+            text = isHex ? da.map(function (out) {
+              return activeFont.metadata.encode(activeFont.metadata.subset, out, activeDirectionality);
             }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
           }
-          text = activeFont.encoding === "MacRomanEncoding" ? '<' + text + '>' : '(' + text + ')';
+          text = isHex ? '<' + text + '>' : '(' + text + ')';
         } else {
           throw new Error('Type of text must be string or Array. "' + text +
             '" is not recognized.');
@@ -1517,7 +1519,6 @@ var jsPDF = (function (global) {
         }
 
         out(result);
-
         return this;
       };
 
@@ -2141,6 +2142,22 @@ var jsPDF = (function (global) {
 
     API.setCharSpace = function (charSpace) {
       activeCharSpace = charSpace;
+      return this;
+    };
+
+
+    /**
+     * Initializes the default character set that the user wants to be global..
+     *
+     * @param {Boolean} Directionality
+     * @function
+     * @returns {jsPDF}
+     * @methodOf jsPDF#
+     * @name setDirectionality
+     */
+
+    API.setDirectionality = function (Directionality) {
+      activeDirectionality = Directionality;
       return this;
     };
 
