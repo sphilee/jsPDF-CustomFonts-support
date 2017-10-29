@@ -9,7 +9,7 @@ The current version does not support Custom Fonts. I will try to implement this 
 
 ## Current Version
 
-Version 0.2
+Version 0.3
 
 [jsPDF libary](http://parall.ax/products/jspdf)
 
@@ -19,8 +19,9 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 0.1 Initial proof of concept
 
-0.2 support multiline text
+0.2 Support multiline text
 
+0.3 Refactor multiline text
 
 ## Install
 
@@ -53,11 +54,17 @@ To begin with the default configuration, you should include two files:
 ...
 ```
 
+
+## addFileToVFS Method
+
+```javascript
+doc.addFileToVFS = function (filename, Base64content);
+```
+
 ## addCustomFonts Method
 
 ```javascript
 doc.addFont(fileName, fontName, fontStyle);
-
 ```
 
 ## Example Code

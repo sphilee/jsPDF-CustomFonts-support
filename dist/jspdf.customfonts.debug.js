@@ -129,8 +129,8 @@ var asyncGenerator = function () {
 
 /** @preserve
  * jsPDF - PDF Document creation from JavaScript
- * Version 0.0.2 Built on 2017-10-29T03:16:44.533Z
- *                           CommitID 5516d737a6
+ * Version 0.0.3 Built on 2017-10-29T06:11:20.710Z
+ *                           CommitID c4b5149090
  *
  * Copyright (c) 2010-2016 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
  *               2010 Aaron Spike, https://github.com/acspike
