@@ -198,7 +198,7 @@ var jsPDF = (function (global) {
       drawColor = options.drawColor || '0 G',
       activeFontSize = options.fontSize || 16,
       activeCharSpace = options.charSpace || 0,
-      activeDirectionality = options.Directionality || false,
+      R2L = options.R2L || false,
       lineHeightProportion = options.lineHeight || 1.15,
       lineWidth = options.lineWidth || 0.200025, // 2mm
       objectNumber = 2, // 'n' Current object number
@@ -1452,7 +1452,7 @@ var jsPDF = (function (global) {
               );
             }
             prevX = x;
-            text = isHex ? activeFont.metadata.encode(activeFont.metadata.subset, da[0], activeDirectionality) : da[0];
+            text = isHex ? activeFont.metadata.encode(activeFont.metadata.subset, da[0], R2L) : da[0];
             for (var i = 1, len = da.length; i < len; i++) {
               var delta = maxLineLength - lineWidths[i];
               if (align === "center") delta /= 2;
@@ -1468,7 +1468,7 @@ var jsPDF = (function (global) {
             }
           } else {
             text = isHex ? da.map(function (out) {
-              return activeFont.metadata.encode(activeFont.metadata.subset, out, activeDirectionality);
+              return activeFont.metadata.encode(activeFont.metadata.subset, out, R2L);
             }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
           }
           text = isHex ? '<' + text + '>' : '(' + text + ')';
@@ -2149,15 +2149,15 @@ var jsPDF = (function (global) {
     /**
      * Initializes the default character set that the user wants to be global..
      *
-     * @param {Boolean} Directionality
+     * @param {Boolean} boolean
      * @function
      * @returns {jsPDF}
      * @methodOf jsPDF#
-     * @name setDirectionality
+     * @name setR2L
      */
 
-    API.setDirectionality = function (Directionality) {
-      activeDirectionality = Directionality;
+    API.setR2L = function (boolean) {
+      R2L = boolean;
       return this;
     };
 

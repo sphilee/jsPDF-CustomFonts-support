@@ -129,8 +129,8 @@ var asyncGenerator = function () {
 
 /** @preserve
  * jsPDF - PDF Document creation from JavaScript
- * Version 0.0.2 Built on 2017-10-28T10:35:51.233Z
- *                           CommitID fe5705ed92
+ * Version 0.0.2 Built on 2017-10-29T03:16:44.533Z
+ *                           CommitID 5516d737a6
  *
  * Copyright (c) 2010-2016 James Hall <james@parall.ax>, https://github.com/MrRio/jsPDF
  *               2010 Aaron Spike, https://github.com/acspike
@@ -311,6 +311,7 @@ var jsPDF = function (global) {
         drawColor = options.drawColor || '0 G',
         activeFontSize = options.fontSize || 16,
         activeCharSpace = options.charSpace || 0,
+        R2L = options.R2L || false,
         lineHeightProportion = options.lineHeight || 1.15,
         lineWidth = options.lineWidth || 0.200025,
         // 2mm
@@ -1496,15 +1497,16 @@ var jsPDF = function (global) {
         text = ESC(text);
       } else if (Object.prototype.toString.call(text) === '[object Array]') {
         // we don't want to destroy  original text array, so cloning it
-        var sa = text.concat(),
-            da = [],
-            len = sa.length,
-            activeFont = fonts[activeFontKey];
+        var sa = text.concat();
+        var da = [];
+        var len = sa.length;
+        var activeFont = fonts[activeFontKey];
+        var isHex = activeFont.encoding === "MacRomanEncoding" ? true : false;
         // we do array.join('text that must not be PDFescaped")
         // thus, pdfEscape each component separately
 
         while (len--) {
-          da.push(activeFont.encoding === "MacRomanEncoding" ? sa.shift() : ESC(sa.shift()));
+          da.push(isHex ? sa.shift() : ESC(sa.shift()));
         }
         if (align) {
           var left,
@@ -1532,12 +1534,12 @@ var jsPDF = function (global) {
             throw new Error('Unrecognized alignment option, use "center" or "right".');
           }
           prevX = x;
-          text = activeFont.encoding === "MacRomanEncoding" ? activeFont.metadata.encode(activeFont.metadata.subset, da[0]) : da[0];
+          text = isHex ? activeFont.metadata.encode(activeFont.metadata.subset, da[0], R2L) : da[0];
           for (var i = 1, len = da.length; i < len; i++) {
             var delta = maxLineLength - lineWidths[i];
             if (align === "center") delta /= 2;
             // T* = x-offset leading Td ( text )
-            if (activeFont.encoding === "MacRomanEncoding") {
+            if (isHex) {
               text += "> Tj\n" + (left - prevX + delta) + " -" + leading + " Td <" + da[i];
             } else {
               text += ") Tj\n" + (left - prevX + delta) + " -" + leading + " Td (" + da[i];
@@ -1545,11 +1547,11 @@ var jsPDF = function (global) {
             prevX = left + delta;
           }
         } else {
-          text = activeFont.encoding === "MacRomanEncoding" ? da.map(function (out) {
-            return activeFont.metadata.encode(activeFont.metadata.subset, out);
+          text = isHex ? da.map(function (out) {
+            return activeFont.metadata.encode(activeFont.metadata.subset, out, R2L);
           }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
         }
-        text = activeFont.encoding === "MacRomanEncoding" ? '<' + text + '>' : '(' + text + ')';
+        text = isHex ? '<' + text + '>' : '(' + text + ')';
       } else {
         throw new Error('Type of text must be string or Array. "' + text + '" is not recognized.');
       }
@@ -1593,7 +1595,6 @@ var jsPDF = function (global) {
       }
 
       out(result);
-
       return this;
     };
 
@@ -2146,6 +2147,21 @@ var jsPDF = function (global) {
 
     API.setCharSpace = function (charSpace) {
       activeCharSpace = charSpace;
+      return this;
+    };
+
+    /**
+     * Initializes the default character set that the user wants to be global..
+     *
+     * @param {Boolean} boolean
+     * @function
+     * @returns {jsPDF}
+     * @methodOf jsPDF#
+     * @name setR2L
+     */
+
+    API.setR2L = function (boolean) {
+      R2L = boolean;
       return this;
     };
 
@@ -9665,6 +9681,237 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
   };
 })(jsPDF.API);
 
+/**
+ * jsPDF viewerPreferences Plugin
+ * @author Aras Abbasi (github.com/arasabbasi)
+ * Licensed under the MIT License.
+ * http://opensource.org/licenses/mit-license
+ */
+
+/**
+* Adds the ability to set ViewerPreferences and by thus
+* controlling the way the document is to be presented on the
+* screen or in print.
+*/
+
+(function (jsPDFAPI) {
+    "use strict";
+    /**
+     * Set the ViewerPreferences of the generated PDF
+     *
+     * @param {Object} options Array with the ViewPreferences<br />
+     * Example: doc.viewerPreferences({"FitWindow":true});<br />
+     * <br />
+     * You can set following preferences:<br />
+     * <br/>
+     * <b>HideToolbar</b> <i>(boolean)</i><br />
+     * Default value: false<br />
+     * <br />
+     * <b>HideMenubar</b> <i>(boolean)</i><br />
+     * Default value: false.<br />
+     * <br />
+     * <b>HideWindowUI</b> <i>(boolean)</i><br />
+     * Default value: false.<br />
+     * <br />
+     * <b>FitWindow</b> <i>(boolean)</i><br />
+     * Default value: false.<br />
+     * <br />
+     * <b>CenterWindow</b> <i>(boolean)</i><br />
+     * Default value: false<br />
+     * <br />
+     * <b>DisplayDocTitle</b> <i>(boolean)</i><br />
+     * Default value: false.<br />
+     * <br />
+     * <b>NonFullScreenPageMode</b> <i>(String)</i><br />
+     * Possible values: UseNone, UseOutlines, UseThumbs, UseOC<br />
+     * Default value: UseNone<br/>
+     * <br />
+     * <b>Direction</b> <i>(String)</i><br />
+     * Possible values: L2R, R2L<br />
+     * Default value: L2R.<br />
+     * <br />
+     * <b>ViewArea</b> <i>(String)</i><br />
+     * Possible values: MediaBox, CropBox, TrimBox, BleedBox, ArtBox<br />
+     * Default value: CropBox.<br />
+     * <br />
+     * <b>ViewClip</b> <i>(String)</i><br />
+     * Possible values: MediaBox, CropBox, TrimBox, BleedBox, ArtBox<br />
+     * Default value: CropBox<br />
+     * <br />
+     * <b>PrintArea</b> <i>(String)</i><br />
+     * Possible values: MediaBox, CropBox, TrimBox, BleedBox, ArtBox<br />
+     * Default value: CropBox<br />
+     * <br />
+     * <b>PrintClip</b> <i>(String)</i><br />
+     * Possible values: MediaBox, CropBox, TrimBox, BleedBox, ArtBox<br />
+     * Default value: CropBox.<br />
+     * <br />
+     * <b>PrintScaling</b> <i>(String)</i><br />
+     * Possible values: AppDefault, None<br />
+     * Default value: AppDefault.<br />
+     * <br />
+     * <b>Duplex</b> <i>(String)</i><br />
+     * Possible values: Simplex, DuplexFlipLongEdge, DuplexFlipShortEdge
+     * Default value: none<br />
+     * <br />
+     * <b>PickTrayByPDFSize</b> <i>(boolean)</i><br />
+     * Default value: false<br />
+     * <br />
+     * <b>PrintPageRange</b> <i>(Array)</i><br />
+     * Example: [[1,5], [7,9]]<br />
+     * Default value: as defined by PDF viewer application<br />
+     * <br />
+     * <b>NumCopies</b> <i>(Number)</i><br />
+     * Possible values: 1, 2, 3, 4, 5<br />
+     * Default value: 1<br />
+     * <br />
+     * For more information see the PDF Reference, sixth edition on Page 577
+     * @param {boolean} doReset True to reset the settings
+     * @function
+     * @returns jsPDF
+     * @methodOf jsPDF#
+     * @example
+     * var doc = new jsPDF()
+     * doc.text('This is a test', 10, 10)
+     * doc.viewerPreferences({'FitWindow': true}, true)
+     * doc.save("viewerPreferences.pdf")
+     *
+     * // Example printing 10 copies, using cropbox, and hiding UI.
+     * doc.viewerPreferences({
+     *   'HideWindowUI': true,
+     *   'PrintArea': 'CropBox',
+     *   'NumCopies': 10
+     * })
+     * @name viewerPreferences
+     */
+
+    jsPDFAPI.viewerPreferences = function (options, doReset) {
+        options = options || {};
+        doReset = doReset || false;
+
+        var configuration;
+        var configurationTemplate = {
+            "HideToolbar": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.3 },
+            "HideMenubar": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.3 },
+            "HideWindowUI": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.3 },
+            "FitWindow": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.3 },
+            "CenterWindow": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.3 },
+            "DisplayDocTitle": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.4 },
+            "NonFullScreenPageMode": { defaultValue: "UseNone", value: "UseNone", type: "name", explicitSet: false, valueSet: ["UseNone", "UseOutlines", "UseThumbs", "UseOC"], pdfVersion: 1.3 },
+            "Direction": { defaultValue: "L2R", value: "L2R", type: "name", explicitSet: false, valueSet: ["L2R", "R2L"], pdfVersion: 1.3 },
+            "ViewArea": { defaultValue: "CropBox", value: "CropBox", type: "name", explicitSet: false, valueSet: ["MediaBox", "CropBox", "TrimBox", "BleedBox", "ArtBox"], pdfVersion: 1.4 },
+            "ViewClip": { defaultValue: "CropBox", value: "CropBox", type: "name", explicitSet: false, valueSet: ["MediaBox", "CropBox", "TrimBox", "BleedBox", "ArtBox"], pdfVersion: 1.4 },
+            "PrintArea": { defaultValue: "CropBox", value: "CropBox", type: "name", explicitSet: false, valueSet: ["MediaBox", "CropBox", "TrimBox", "BleedBox", "ArtBox"], pdfVersion: 1.4 },
+            "PrintClip": { defaultValue: "CropBox", value: "CropBox", type: "name", explicitSet: false, valueSet: ["MediaBox", "CropBox", "TrimBox", "BleedBox", "ArtBox"], pdfVersion: 1.4 },
+            "PrintScaling": { defaultValue: "AppDefault", value: "AppDefault", type: "name", explicitSet: false, valueSet: ["AppDefault", "None"], pdfVersion: 1.6 },
+            "Duplex": { defaultValue: "", value: "none", type: "name", explicitSet: false, valueSet: ["Simplex", "DuplexFlipShortEdge", "DuplexFlipLongEdge", "none"], pdfVersion: 1.7 },
+            "PickTrayByPDFSize": { defaultValue: false, value: false, type: "boolean", explicitSet: false, valueSet: [true, false], pdfVersion: 1.7 },
+            "PrintPageRange": { defaultValue: "", value: "", type: "array", explicitSet: false, valueSet: null, pdfVersion: 1.7 },
+            "NumCopies": { defaultValue: 1, value: 1, type: "integer", explicitSet: false, valueSet: null, pdfVersion: 1.7 }
+        };
+
+        var configurationKeys = Object.keys(configurationTemplate);
+
+        var rangeArray = [];
+        var i = 0;
+        var j = 0;
+        var k = 0;
+        var isValid = true;
+
+        var method;
+        var value;
+
+        function arrayContainsElement(array, element) {
+            var iterator;
+            var result = false;
+
+            for (iterator = 0; iterator < array.length; iterator += 1) {
+                if (array[iterator] === element) {
+                    result = true;
+                }
+            }
+            return result;
+        }
+
+        if (this.internal.viewerpreferences === undefined) {
+            this.internal.viewerpreferences = {};
+            this.internal.viewerpreferences.configuration = JSON.parse(JSON.stringify(configurationTemplate));
+            this.internal.viewerpreferences.isSubscribed = false;
+        }
+        configuration = this.internal.viewerpreferences.configuration;
+
+        if (options === "reset" || doReset === true) {
+            var len = configurationKeys.length;
+
+            for (k = 0; k < len; k += 1) {
+                configuration[configurationKeys[k]].value = configuration[configurationKeys[k]].defaultValue;
+                configuration[configurationKeys[k]].explicitSet = false;
+            }
+        }
+
+        if ((typeof options === "undefined" ? "undefined" : _typeof(options)) === "object") {
+            for (method in options) {
+                value = options[method];
+                if (arrayContainsElement(configurationKeys, method) && value !== undefined) {
+
+                    if (configuration[method].type === "boolean" && typeof value === "boolean") {
+                        configuration[method].value = value;
+                    } else if (configuration[method].type === "name" && arrayContainsElement(configuration[method].valueSet, value)) {
+                        configuration[method].value = value;
+                    } else if (configuration[method].type === "integer" && Number.isInteger(value)) {
+                        configuration[method].value = value;
+                    } else if (configuration[method].type === "array") {
+
+                        for (i = 0; i < value.length; i += 1) {
+                            isValid = true;
+                            if (value[i].length === 1 && typeof value[i][0] === "number") {
+                                rangeArray.push(String(value[i]));
+                            } else if (value[i].length > 1) {
+                                for (j = 0; j < value[i].length; j += 1) {
+                                    if (typeof value[i][j] !== "number") {
+                                        isValid = false;
+                                    }
+                                }
+                                if (isValid === true) {
+                                    rangeArray.push(String(value[i].join("-")));
+                                }
+                            }
+                        }
+                        configuration[method].value = String(rangeArray);
+                    } else {
+                        configuration[method].value = configuration[method].defaultValue;
+                    }
+
+                    configuration[method].explicitSet = true;
+                }
+            }
+        }
+
+        if (this.internal.viewerpreferences.isSubscribed === false) {
+            this.internal.events.subscribe("putCatalog", function () {
+                var pdfDict = [];
+                var vPref;
+                for (vPref in configuration) {
+                    if (configuration[vPref].explicitSet === true) {
+                        if (configuration[vPref].type === "name") {
+                            pdfDict.push("/" + vPref + " /" + configuration[vPref].value);
+                        } else {
+                            pdfDict.push("/" + vPref + " " + configuration[vPref].value);
+                        }
+                    }
+                }
+                if (pdfDict.length !== 0) {
+                    this.internal.write("/ViewerPreferences" + "<<\n" + pdfDict.join("\n") + "\n>>");
+                }
+            });
+            this.internal.viewerpreferences.isSubscribed = true;
+        }
+
+        this.internal.viewerpreferences.configuration = configuration;
+        return this;
+    };
+})(jsPDF.API);
+
 /** ==================================================================== 
  * jsPDF XMP metadata plugin
  * Copyright (c) 2016 Jussi Utunen, u-jussi@suomi24.fi
@@ -9852,10 +10099,11 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
             gap = includeGap ? this.lineGap : 0;
             return (this.ascender + gap - this.decender) / 1000 * size;
         };
-        TTFFont.prototype.encode = function (font, text) {
+        TTFFont.prototype.encode = function (font, text, reverse) {
             font.use(text);
 
-            text = font.encodeText(text);
+            text = reverse ? reverseString(font.encodeText(text)) : font.encodeText(text);
+
             text = function () {
                 var _results = [];
 
@@ -9879,7 +10127,7 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
             function makeFontTable(data) {
                 var tableNumber;
                 if (data.Type === "Font") {
-                    if (data.Encoding === 'MacRomanEncoding') data.ToUnicode = makeFontTable(data.ToUnicode) + ' 0 R';
+                    if (isHex) data.ToUnicode = makeFontTable(data.ToUnicode) + ' 0 R';
                     data.FontDescriptor = makeFontTable(data.FontDescriptor) + ' 0 R';
                     tableNumber = newObject();
                     out(PDFObject.convert(data));
@@ -9899,10 +10147,10 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
             }
 
             var charWidths, cmap, code, data, descriptor, firstChar, fontfile, glyph;
-
+            var isHex = encoding === 'MacRomanEncoding' ? true : false;
             data = this.subset.encode();
             fontfile = {};
-            fontfile = encoding === 'MacRomanEncoding' ? data : this.rawData;
+            fontfile = isHex ? data : this.rawData;
             descriptor = {
                 Type: 'FontDescriptor',
                 FontName: this.subset.postscriptName,
@@ -9917,7 +10165,7 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
                 XHeight: this.xHeight
             };
             firstChar = +Object.keys(this.subset.cmap)[0];
-            if (firstChar !== 33 && encoding === 'MacRomanEncoding') return false;
+            if (firstChar !== 33 && isHex) return false;
             charWidths = function () {
                 var _ref, _results;
                 _ref = this.subset.cmap;
@@ -9929,7 +10177,7 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
                 return _results;
             }.call(this);
             cmap = toUnicodeCmap(this.subset.subset);
-            var dictionary = encoding === 'MacRomanEncoding' ? {
+            var dictionary = isHex ? {
                 Type: 'Font',
                 BaseFont: this.subset.postscriptName,
                 Subtype: 'TrueType',
@@ -10082,6 +10330,10 @@ Copyright (c) 2012 Willow Systems Corporation, willow-systems.com
                 unicodeMap += "\n" + range.length + " beginbfchar\n" + range.join('\n') + "\nendbfchar\n";
             }
             return unicodeMap += 'endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend';
+        };
+
+        var reverseString = function reverseString(s) {
+            return s.split("").reverse().join("");
         };
 
         return TTFFont;
