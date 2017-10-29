@@ -1953,7 +1953,7 @@
         function (font) {
             if (jsPDFAPI.existsFileInVFS(font.postScriptName)) {
                 font.metadata = TTFFont.open(font.postScriptName, font.fontName, jsPDFAPI.getFileFromVFS(font.postScriptName), font.encoding);
-                font.encoding = font.metadata.hmtx.widths.length > 500 ? "MacRomanEncoding" : "WinAnsiEncoding";
+                font.encoding = (font.metadata.hmtx.widths.length < 500 && font.metadata.capHeight < 800)? "WinAnsiEncoding" : "MacRomanEncoding";
             }
         }
     ]);
