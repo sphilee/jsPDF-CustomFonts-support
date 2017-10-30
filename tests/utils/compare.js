@@ -1,18 +1,26 @@
 /* global XMLHttpRequest, expect */
 
-function loadBinaryResource (url) {
+function loadBinaryResource(url, unicodeCleanUp) {
   const req = new XMLHttpRequest()
   req.open('GET', url, false)
-   // XHR binary charset opt by Marcus Granado 2006 [http://mgran.blogspot.com]
-  req.overrideMimeType('text\/plain; charset=x-user-defined')
+  // XHR binary charset opt by Marcus Granado 2006 [http://mgran.blogspot.com]
+  req.overrideMimeType('text\/plain; charset=x-user-defined');
   req.send(null)
   if (req.status !== 200) {
     throw new Error('Unable to load file')
   }
-  return req.responseText
+  let responseText = req.responseText;
+  let StringFromCharCode = String.fromCharCode;
+  if (unicodeCleanUp === true) {
+    for (let i = 0, responseTextLen = responseText.length; i < responseTextLen; i += 1) {
+      byteArray.push(StringFromCharCode(responseText.charCodeAt(i) & 0xff))
+    }
+    return byteArray.join("");
+  }
+  return responseText;
 }
 
-function sendReference (filename, data) {
+function sendReference(filename, data) {
   const req = new XMLHttpRequest()
   req.open('POST', `http://localhost:9090/${filename}`, true)
   req.onload = e => {
@@ -31,10 +39,11 @@ const resetCreationDate = input =>
  * Find a better way to set this
  * @type {Boolean}
  */
-window.comparePdf = (actual, expectedFile, suite) => {
-  let pdf
+window.comparePdf = (actual, expectedFile, suite, unicodeCleanUp) => {
+  let pdf;
+  unicodeCleanUp = unicodeCleanUp || true;
   try {
-    pdf = loadBinaryResource(`/base/tests/${suite}/reference/${expectedFile}`)
+    pdf = loadBinaryResource(`/base/tests/${suite}/reference/${expectedFile}`, unicodeCleanUp)
   } catch (error) {
     sendReference(`/tests/${suite}/reference/${expectedFile}`, resetCreationDate(actual))
     pdf = actual
