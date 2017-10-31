@@ -1425,13 +1425,20 @@ var jsPDF = (function (global) {
           }
 
           if (align) {
-            var left,
-              prevX,
-              maxLineLength,
-              leading = activeFontSize * lineHeightProportion,
-              lineWidths = text.map(function (v) {
-                return this.getStringUnitWidth(v) * activeFontSize / k;
-              }, this);
+            var leading = activeFontSize * lineHeightProportion;
+            var option = activeFontKey.slice(1) < 14 ? {} : {
+              font: activeFont.metadata,
+              fontSize: activeFontSize,
+              charSpace: activeCharSpace
+            };
+            var lineWidths = text.map(function (v) {
+              return this.getStringUnitWidth(v, option) * activeFontSize / k;
+            }, this);
+            var left;
+            var prevX;
+            var maxLineLength;
+
+
             maxLineLength = Math.max.apply(Math, lineWidths);
             // The first line uses the "main" Td setting,
             // and the subsequent lines are offset by the
