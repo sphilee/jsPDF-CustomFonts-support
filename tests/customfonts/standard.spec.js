@@ -36,6 +36,11 @@ describe('Customfonts Text', () => {
     });
 
 
+    doc.addFont('OpenSans-Regular.ttf', 'OpenSans', 'normal');
+    doc.addFont('OpenSans-Bold.ttf', 'OpenSans', 'bold');
+    doc.addFont('OpenSans-Italic.ttf', 'OpenSans', 'italic');
+
+
     doc.text(20, 20, 'This is the default font.')
 
     doc.setFont('OpenSans')
