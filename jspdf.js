@@ -156,15 +156,17 @@ var jsPDF = (function (global) {
           idr = [];
 
         for (var id in topics[topic]) {
-          var sub = topics[topic][id];
-          try {
-            sub[0].apply(context, args);
-          } catch (ex) {
-            if (global.console) {
-              console.error('jsPDF PubSub Error', ex.message, ex);
+          if (Object.prototype.hasOwnProperty.call(topics[topic], id)) {
+            var sub = topics[topic][id];
+            try {
+              sub[0].apply(context, args);
+            } catch (ex) {
+              if (global.console) {
+                console.error('jsPDF PubSub Error', ex.message, ex);
+              }
             }
+            if (sub[1]) idr.push(id);
           }
-          if (sub[1]) idr.push(id);
         }
         if (idr.length) idr.forEach(this.unsubscribe);
       }
@@ -245,7 +247,7 @@ var jsPDF = (function (global) {
         return number.toFixed(3); // Ie, %.3f
       },
       padd2 = function (number) {
-        return ('0' + parseInt(number)).slice(-2);
+        return ('0' + parseInt(number, 10)).slice(-2);
       },
       out = function (string) {
         if (outToPages) {
@@ -336,8 +338,8 @@ var jsPDF = (function (global) {
             deflater.append(new Uint8Array(arr));
             p = deflater.flush();
             arr = new Uint8Array(p.length + 6);
-            arr.set(new Uint8Array([120, 156])),
-              arr.set(p, 2);
+            arr.set(new Uint8Array([120, 156]));
+            arr.set(p, 2);
             arr.set(new Uint8Array([adler32 & 0xFF, (adler32 >> 8) & 0xFF, (
                 adler32 >> 16) & 0xFF, (adler32 >> 24) & 0xFF]), p.length +
               2);
@@ -365,7 +367,11 @@ var jsPDF = (function (global) {
       putFont = function (font) {
         if ((font.id).slice(1) >= 14) {
           var dictionary = font.metadata.embedTTF(font.encoding, newObject, out);
-          dictionary ? font.objectNumber = dictionary : delete fonts[font.id];
+          if (dictionary) {
+            font.objectNumber = dictionary;
+          } else {
+            delete fonts[font.id];
+          }
         } else {
           font.objectNumber = newObject();
           out('<</BaseFont/' + font.postScriptName + '/Type/Font');
@@ -420,7 +426,7 @@ var jsPDF = (function (global) {
           var obj = additionalObjects[i];
           offsets[obj.objId] = content_length;
           out(obj.objId + ' 0 obj');
-          out(obj.content);;
+          out(obj.content);
           out('endobj');
         }
         objectNumber += additionalObjects.length;
@@ -728,7 +734,7 @@ var jsPDF = (function (global) {
           default:
             var pcn = '' + zoomMode;
             if (pcn.substr(pcn.length - 1) === '%')
-              zoomMode = parseInt(zoomMode) / 100;
+              zoomMode = parseInt(zoomMode, 10) / 100;
             if (typeof zoomMode === 'number') {
               out('/OpenAction [3 0 R /XYZ null null ' + f2(zoomMode) + ']');
             }
@@ -889,13 +895,15 @@ var jsPDF = (function (global) {
         try {
           // get a string like 'F3' - the KEY corresponding tot he font + type combination.
           key = fontmap[fontName][fontStyle];
-        } catch (e) {}
+        } catch (e) {
+          //error
+        }
 
         if (!key) {
           //throw new Error("Unable to look up font label for font '" + fontName + "', '"
           //+ fontStyle + "'. Refer to getFontList() for available fonts.");
           key = fontmap['times'][fontStyle];
-          if (key == null) {
+          if (key === undefined) {
             key = fontmap['times']['normal'];
           }
         }
@@ -1039,7 +1047,7 @@ var jsPDF = (function (global) {
           case 'bloburl':
             // User is responsible of calling revokeObjectURL
             return global.URL && global.URL.createObjectURL(getBlob()) ||
-              void 0;
+              undefined;
           case 'datauristring':
           case 'dataurlstring':
             return datauri;
@@ -1081,7 +1089,7 @@ var jsPDF = (function (global) {
         k = 72;
         break;
       case 'px':
-        if (hasHotfix('px_scaling') == true) {
+        if (hasHotfix('px_scaling') === true) {
           k = 72 / 96;
         } else {
           k = 96 / 72;
@@ -1231,11 +1239,12 @@ var jsPDF = (function (global) {
       return this;
     };
     API.movePage = function (targetPage, beforePage) {
+      var tmpPages, tmpPagedim, tmpPagesContext, i;
       if (targetPage > beforePage) {
-        var tmpPages = pages[targetPage];
-        var tmpPagedim = pagedim[targetPage];
-        var tmpPagesContext = pagesContext[targetPage];
-        for (var i = targetPage; i > beforePage; i--) {
+        tmpPages = pages[targetPage];
+        tmpPagedim = pagedim[targetPage];
+        tmpPagesContext = pagesContext[targetPage];
+        for (i = targetPage; i > beforePage; i--) {
           pages[i] = pages[i - 1];
           pagedim[i] = pagedim[i - 1];
           pagesContext[i] = pagesContext[i - 1];
@@ -1245,10 +1254,10 @@ var jsPDF = (function (global) {
         pagesContext[beforePage] = tmpPagesContext;
         this.setPage(beforePage);
       } else if (targetPage < beforePage) {
-        var tmpPages = pages[targetPage];
-        var tmpPagedim = pagedim[targetPage];
-        var tmpPagesContext = pagesContext[targetPage];
-        for (var i = targetPage; i < beforePage; i++) {
+        tmpPages = pages[targetPage];
+        tmpPagedim = pagedim[targetPage];
+        tmpPagesContext = pagesContext[targetPage];
+        for (i = targetPage; i < beforePage; i++) {
           pages[i] = pages[i + 1];
           pagedim[i] = pagedim[i + 1];
           pagesContext[i] = pagesContext[i + 1];
@@ -1290,72 +1299,85 @@ var jsPDF = (function (global) {
      * @name setDisplayMode
      */
     API.setDisplayMode = function (zoom, layout, pmode) {
-        zoomMode = zoom;
-        layoutMode = layout;
-        pageMode = pmode;
+      zoomMode = zoom;
+      layoutMode = layout;
+      pageMode = pmode;
 
-        var validPageModes = [undefined, null, 'UseNone', 'UseOutlines', 'UseThumbs', 'FullScreen'];
-        if (validPageModes.indexOf(pmode) == -1) {
-          throw new Error('Page mode must be one of UseNone, UseOutlines, UseThumbs, or FullScreen. "' + pmode + '" is not recognized.')
-        }
-        return this;
-      },
+      var validPageModes = [undefined, null, 'UseNone', 'UseOutlines', 'UseThumbs', 'FullScreen'];
+      if (validPageModes.indexOf(pmode) === -1) {
+        throw new Error('Page mode must be one of UseNone, UseOutlines, UseThumbs, or FullScreen. "' + pmode + '" is not recognized.')
+      }
+      return this;
+    };
 
+    /**
+     * Adds text to page. Supports adding multiline text when 'text' argument is an Array of Strings.
+     *
+     * @function
+     * @param {String|Array} text String or array of strings to be added to the page. Each line is shifted one line down per font, spacing settings declared before this call.
+     * @param {Number} x Coordinate (in units declared at inception of PDF document) against left edge of the page
+     * @param {Number} y Coordinate (in units declared at inception of PDF document) against upper edge of the page
+     * @param {Object} options Collection of settings signalling how the text must be encoded. Defaults are sane. If you think you want to pass some flags, you likely can read the source.
+     * @returns {jsPDF}
+     * @methodOf jsPDF#
+     * @name text
+     */
+    API.text = function (text, x, y, options) {
       /**
-       * Adds text to page. Supports adding multiline text when 'text' argument is an Array of Strings.
-       *
-       * @function
-       * @param {String|Array} text String or array of strings to be added to the page. Each line is shifted one line down per font, spacing settings declared before this call.
-       * @param {Number} x Coordinate (in units declared at inception of PDF document) against left edge of the page
-       * @param {Number} y Coordinate (in units declared at inception of PDF document) against upper edge of the page
-       * @param {Object} flags Collection of settings signalling how the text must be encoded. Defaults are sane. If you think you want to pass some flags, you likely can read the source.
-       * @returns {jsPDF}
-       * @methodOf jsPDF#
-       * @name text
+       * Inserts something like this into PDF
+       *   BT
+       *    /F1 16 Tf  % Font name + size
+       *    16 TL % How many units down for next line in multiline text
+       *    0 g % color
+       *    28.35 813.54 Td % position
+       *    (line one) Tj
+       *    T* (line two) Tj
+       *    T* (line three) Tj
+       *   ET
        */
-      API.text = function (text, x, y, flags, angle, align) {
-        /**
-         * Inserts something like this into PDF
-         *   BT
-         *    /F1 16 Tf  % Font name + size
-         *    16 TL % How many units down for next line in multiline text
-         *    0 g % color
-         *    28.35 813.54 Td % position
-         *    (line one) Tj
-         *    T* (line two) Tj
-         *    T* (line three) Tj
-         *   ET
-         */
-        function ESC(s) {
-          s = s.split("\t").join(Array(options.TabLen || 9).join(" "));
-          return pdfEscape(s, flags);
-        }
+      var xtra = '';
+      var transformationMatrix = [];
+      var flags = arguments[3];
+      var angle = arguments[4];
+      var align = arguments[5];
+      var tmp;
 
-        // Pre-August-2012 the order of arguments was function(x, y, text, flags)
-        // in effort to make all calls have similar signature like
-        //   function(data, coordinates... , miscellaneous)
-        // this method had its args flipped.
-        // code below allows backward compatibility with old arg order.
-        if (typeof text === 'number') {
-          tmp = y;
-          y = x;
-          x = text;
-          text = tmp;
-        }
+      function f2(number) {
+        return number.toFixed(2);
+      }
 
-        // If there are any newlines in text, we assume
-        // the user wanted to print multiple lines, so break the
-        // text up into an array.  If the text is already an array,
-        // we assume the user knows what they are doing.
-        // Convert text into an array anyway to simplify
-        // later code.
-        if (typeof text === 'string') {
-          if (text.match(/[\n\r]/)) {
-            text = text.split(/\r\n|\r|\n/g);
-          } else {
-            text = [text];
-          }
+      function ESC(s) {
+        s = s.split("\t").join(Array(options.TabLen || 9).join(" "));
+        return pdfEscape(s, flags);
+      }
+
+      // Pre-August-2012 the order of arguments was function(x, y, text, flags)
+      // in effort to make all calls have similar signature like
+      //   function(data, coordinates... , miscellaneous)
+      // this method had its args flipped.
+      // code below allows backward compatibility with old arg order.
+      if (typeof text === 'number') {
+        tmp = y;
+        y = x;
+        x = text;
+        text = tmp;
+      }
+
+      // If there are any newlines in text, we assume
+      // the user wanted to print multiple lines, so break the
+      // text up into an array.  If the text is already an array,
+      // we assume the user knows what they are doing.
+      // Convert text into an array anyway to simplify
+      // later code.
+      if (typeof text === 'string') {
+        if (text.match(/[\n\r]/)) {
+          text = text.split(/\r\n|\r|\n/g);
+        } else {
+          text = [text];
         }
+      }
+
+      if (typeof flags !== "object" || flags === null) {
         if (typeof angle === 'string') {
           align = angle;
           angle = null;
@@ -1368,166 +1390,155 @@ var jsPDF = (function (global) {
           angle = flags;
           flags = null;
         }
-        var xtra = '',
-          mode = 'Td',
-          todo;
-        if (angle) {
-          angle *= (Math.PI / 180);
-          var c = Math.cos(angle),
-            s = Math.sin(angle);
-          xtra = [f2(c), f2(s), f2(s * -1), f2(c), ''].join(" ");
-          mode = 'Tm';
+        options = {
+          flags: flags,
+          angle: angle,
+          align: align
+        };
+      }
+
+      if (angle) {
+        angle *= (Math.PI / 180);
+        var c = Math.cos(angle);
+        var s = Math.sin(angle);
+        transformationMatrix = [f2(c), f2(s), f2(s * -1), f2(c)];
+      }
+
+
+      if (activeCharSpace) xtra += activeCharSpace + ' Tc\n';
+
+      //renderingMode
+      var tmpRenderingMode = -1;
+      var parmRenderingMode = options.renderingMode || options.stroke;
+      var pageContext = this.internal.getCurrentPageInfo().pageContext;
+      var usedRenderingMode = pageContext.usedRenderingMode || -1;
+
+      switch (parmRenderingMode) {
+        case 0:
+        case false:
+        case 'fill':
+          tmpRenderingMode = 0;
+          break;
+        case 1:
+        case true:
+        case 'stroke':
+          tmpRenderingMode = 1;
+          break;
+        case 2:
+        case 'fillThenStroke':
+          tmpRenderingMode = 2;
+          break;
+        case 3:
+        case 'invisible':
+          tmpRenderingMode = 3;
+          break;
+        case 4:
+        case 'fillAndAddForClipping':
+          tmpRenderingMode = 4;
+          break;
+        case 5:
+        case 'strokeAndAddPathForClipping':
+          tmpRenderingMode = 5;
+          break;
+        case 6:
+        case 'fillThenStrokeAndAddToPathForClipping':
+          tmpRenderingMode = 6;
+          break;
+        case 7:
+        case 'addToPathForClipping':
+          tmpRenderingMode = 7;
+          break;
+      }
+
+
+      //if the coder wrote it explicitly to use a specific 
+      //renderingMode, then use it
+      if (tmpRenderingMode !== -1) {
+        xtra += tmpRenderingMode + " Tr\n"
+        //otherwise check if we used the rendering Mode already
+        //if so then set the rendering Mode...
+      } else if (usedRenderingMode !== -1) {
+        xtra += "0 Tr\n";
+      }
+
+      if (Object.prototype.toString.call(text) === '[object Array]') {
+        // we don't want to destroy  original text array, so cloning it
+        var sa = text.concat();
+        var da = [];
+        var len = sa.length;
+        var activeFont = fonts[activeFontKey];
+        var isHex = (activeFont.encoding === "MacRomanEncoding");
+        var isCustom = activeFontKey.slice(1) > 13;
+        // we do array.join('text that must not be PDFescaped")
+        // thus, pdfEscape each component separately
+
+        while (len--) {
+          da.push(isHex ? activeFont.metadata.encode(activeFont.metadata.subset, sa.shift(), R2L) : ESC(sa.shift()));
         }
-        flags = flags || {};
-        if (!('noBOM' in flags))
-          flags.noBOM = true;
-        if (!('autoencode' in flags))
-          flags.autoencode = true;
-
-        var strokeOption = '';
-        var pageContext = this.internal.getCurrentPageInfo().pageContext;
-        if (true === flags.stroke) {
-          if (pageContext.lastTextWasStroke !== true) {
-            strokeOption = '1 Tr\n';
-            pageContext.lastTextWasStroke = true;
-          }
-        } else {
-          if (pageContext.lastTextWasStroke) {
-            strokeOption = '0 Tr\n';
-          }
-          pageContext.lastTextWasStroke = false;
-        }
-
-        if (typeof this._runningPageHeight === 'undefined') {
-          this._runningPageHeight = 0;
-        }
-
-        if (typeof text === 'string') {
-          text = ESC(text);
-        } else if (Object.prototype.toString.call(text) ===
-          '[object Array]') {
-          // we don't want to destroy  original text array, so cloning it
-          var sa = text.concat();
-          var da = [];
-          var len = sa.length;
-          var activeFont = fonts[activeFontKey];
-          var isHex = activeFont.encoding === "MacRomanEncoding" ? true : false;
-          // we do array.join('text that must not be PDFescaped")
-          // thus, pdfEscape each component separately
-
-          while (len--) {
-            da.push(isHex ? sa.shift() : ESC(sa.shift()));
-          }
-          var linesLeft = Math.ceil((pageHeight - y - this._runningPageHeight) *
-            k / (activeFontSize * lineHeightProportion));
-          if (0 <= linesLeft && linesLeft < da.length + 1) {
-            //todo = da.splice(linesLeft-1);
-          }
-
-          if (align) {
-            var leading = activeFontSize * lineHeightProportion;
-            var option = activeFontKey.slice(1) < 14 ? {} : {
-              font: activeFont.metadata,
-              fontSize: activeFontSize,
-              charSpace: activeCharSpace
-            };
-            var lineWidths = text.map(function (v) {
-              return this.getStringUnitWidth(v, option) * activeFontSize / k;
-            }, this);
-            var left;
-            var prevX;
-            var maxLineLength;
 
 
-            maxLineLength = Math.max.apply(Math, lineWidths);
-            // The first line uses the "main" Td setting,
-            // and the subsequent lines are offset by the
-            // previous line's x coordinate.
-            if (align === "center") {
-              // The passed in x coordinate defines
-              // the center point.
-              left = x - maxLineLength / 2;
-              x -= lineWidths[0] / 2;
-            } else if (align === "right") {
-              // The passed in x coordinate defines the
-              // rightmost point of the text.
-              left = x - maxLineLength;
-              x -= lineWidths[0];
-            } else {
-              throw new Error(
-                'Unrecognized alignment option, use "center" or "right".'
-              );
-            }
+        //align
+
+        align = align || options.align || 'left';
+        var leading = activeFontSize * lineHeightProportion;
+        var option = isCustom ? {
+          font: activeFont.metadata,
+          fontSize: activeFontSize,
+          charSpace: activeCharSpace
+        } : {};
+        var lineWidths = text.map(function (v) {
+          return this.getStringUnitWidth(v, option) * activeFontSize / k;
+        }, this);
+        var maxLineLength = Math.max.apply(Math, lineWidths);
+        var bracketOpen = isHex ? '<' : '(';
+        var bracketClose = isHex ? '>' : ')';
+        var left;
+        var prevX;
+        var delta;
+        var i;
+
+        if (align) {
+          if (align === "left") {
             prevX = x;
-            text = isHex ? activeFont.metadata.encode(activeFont.metadata.subset, da[0], R2L) : da[0];
-            for (var i = 1, len = da.length; i < len; i++) {
-              var delta = maxLineLength - lineWidths[i];
-              if (align === "center") delta /= 2;
-              // T* = x-offset leading Td ( text )
-              if (isHex) {
-                text += "> Tj\n" + ((left - prevX) + delta) + " -" + leading +
-                  " Td <" + da[i];
-              } else {
-                text += ") Tj\n" + ((left - prevX) + delta) + " -" + leading +
-                  " Td (" + da[i];
-              }
-              prevX = left + delta;
-            }
+          } else if (align === "center") {
+            left = x - maxLineLength / 2;
+            x -= lineWidths[0] / 2;
+          } else if (align === "right") {
+            left = x - maxLineLength;
+            x -= lineWidths[0];
           } else {
-            text = isHex ? da.map(function (out) {
-              return activeFont.metadata.encode(activeFont.metadata.subset, out, R2L);
-            }).join("> Tj\nT* <") : da.join(") Tj\nT* (");
+            throw new Error('Unrecognized alignment option, use "left", "center", "right".');
           }
-          text = isHex ? '<' + text + '>' : '(' + text + ')';
-        } else {
-          throw new Error('Type of text must be string or Array. "' + text +
-            '" is not recognized.');
+          text = da[0];
+          for (i = 1, len = da.length; i < len; i++) {
+            delta = maxLineLength - lineWidths[i];
+            if (align === "center") delta /= 2;
+            text += bracketClose + "Tj\n" + ((left - prevX) + delta) + " -" + leading +
+              " Td " + bracketOpen + da[i];
+            prevX = left + delta;
+          }
         }
-        // Using "'" ("go next line and render text" mark) would save space but would complicate our rendering code, templates
+        text = bracketOpen + da.join(bracketClose + " Tj\nT* " + bracketOpen) + bracketClose;
+      } else {
+        throw new Error('Type of text must be string or Array. "' + text + '" is not recognized.');
+      }
+      // Using "'" ("go next line and render text" mark) would save space but would complicate our rendering code, templates
 
-        // BT .. ET does NOT have default settings for Tf. You must state that explicitely every time for BT .. ET
-        // if you want text transformation matrix (+ multiline) to work reliably (which reads sizes of things from font declarations)
-        // Thus, there is NO useful, *reliable* concept of "default" font for a page.
-        // The fact that "default" (reuse font used before) font worked before in basic cases is an accident
-        // - readers dealing smartly with brokenness of jsPDF's markup.
+      // BT .. ET does NOT have default settings for Tf. You must state that explicitely every time for BT .. ET
+      // if you want text transformation matrix (+ multiline) to work reliably (which reads sizes of things from font declarations)
+      // Thus, there is NO useful, *reliable* concept of "default" font for a page.
+      // The fact that "default" (reuse font used before) font worked before in basic cases is an accident
+      // - readers dealing smartly with brokenness of jsPDF's markup.
 
-        var curY;
-        if (todo) {
-          //this.addPage();
-          //this._runningPageHeight += y -  (activeFontSize * 1.7 / k);
-          //curY = f2(pageHeight - activeFontSize * 1.7 /k);
-        } else {
-          curY = f2((pageHeight - y) * k);
-        }
-        //curY = f2((pageHeight - (y - this._runningPageHeight)) * k);
+      out('BT\n/' +
+        activeFontKey + ' ' + activeFontSize + ' Tf\n' + // font face, style, size
+        (activeFontSize * lineHeightProportion) + ' TL\n' + // line spacing
+        textColor + '\n' +
+        xtra + f2(x * k) + ' ' + f2((pageHeight - y) * k) + ' Td\n' +
+        text + ' Tj\nET');
 
-        //			if (curY < 0){
-        //				console.log('auto page break');
-        //				this.addPage();
-        //				this._runningPageHeight = y -  (activeFontSize * 1.7 / k);
-        //				curY = f2(pageHeight - activeFontSize * 1.7 /k);
-        //			}
-
-        var result = 'BT\n/' +
-          activeFontKey + ' ' + activeFontSize + ' Tf\n' + // font face, style, size
-          (activeFontSize * lineHeightProportion) + ' TL\n' + // line spacing
-          strokeOption + textColor + '\n';
-
-        if (activeCharSpace)
-          result += activeCharSpace + ' Tc\n';
-
-        result += xtra + f2(x * k) + ' ' + curY + ' ' + mode + '\n' +
-          text + ' Tj\nET';
-
-        if (todo) {
-          //this.text( todo, x, activeFontSize * 1.7 / k);
-          //this.text( todo, x, this._runningPageHeight + (activeFontSize * 1.7 / k));
-          this.text(todo, x, y); // + (activeFontSize * 1.7 / k));
-        }
-
-        out(result);
-        return this;
-      };
+      return this;
+    };
 
     /**
      * Letter spacing method to print text with gaps
