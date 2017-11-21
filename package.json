@@ -9,6 +9,9 @@
     "dist/jspdf.customfonts.min.js",
     "README.md"
   ],
+  "bin": {
+    "jsPDF-makeFonts": "makeFonts.js"
+  },
   "keywords": [
     "pdf",
     "font",
