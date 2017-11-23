@@ -54,8 +54,8 @@ describe('Customfonts Text', () => {
     doc.text(20, 50, 'This is helvetica bold.')
 
     doc.setFont('OpenSans')
-    doc.setFontType('bolditalic')
-    doc.text(20, 60, 'This is courier bolditalic.')
+    doc.setFontType('boldItalic')
+    doc.text(20, 60, 'This is courier boldItalic.')
 
     comparePdf(doc.output(), 'custom_fonts.pdf', 'customfonts')
   })
