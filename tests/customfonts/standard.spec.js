@@ -37,7 +37,7 @@ describe('Customfonts Text', () => {
     doc.addFont('OpenSans-Regular.ttf', 'OpenSans', 'normal');
     doc.addFont('OpenSans-Bold.ttf', 'OpenSans', 'bold');
     doc.addFont('OpenSans-Italic.ttf', 'OpenSans', 'italic');
-    doc.addFont('OpenSans-BoldItalic.ttf', 'OpenSans', 'BoldItalic');
+    doc.addFont('OpenSans-BoldItalic.ttf', 'OpenSans', 'boldItalic');
 
     doc.text(20, 20, 'This is the default font.')
 
@@ -54,8 +54,8 @@ describe('Customfonts Text', () => {
     doc.text(20, 50, 'This is helvetica bold.')
 
     doc.setFont('OpenSans')
-    doc.setFontType('BoldItalic')
-    doc.text(20, 60, 'This is courier BoldItalic.')
+    doc.setFontType('boldItalic')
+    doc.text(20, 60, 'This is courier boldItalic.')
 
     comparePdf(doc.output(), 'custom_fonts.pdf', 'customfonts')
   })
