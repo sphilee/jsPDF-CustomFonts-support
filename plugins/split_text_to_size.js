@@ -54,28 +54,30 @@
 			for (i = 0; i < l; i++) {
 				output.push(options.font.widthOfString(text[i], fontSize, charSpace) / fontSize)
 			}
-			return output;
-		}
+		} else if (this.internal.getFont().id.slice(1) >= 14) {
+			var fontSize = this.internal.getFontSize();
+			var charSpace = this.internal.getCharSpace();
+			for (i = 0; i < l; i++) {
+				output.push(this.internal.getFont().metadata.widthOfString(text[i], fontSize, charSpace) / fontSize)
+			}
+		} else {
+			var widths = options.widths ? options.widths : this.internal.getFont().metadata.Unicode.widths,
+				widthsFractionOf = widths.fof ? widths.fof : 1,
+				kerning = options.kerning ? options.kerning : this.internal.getFont().metadata.Unicode.kerning,
+				kerningFractionOf = kerning.fof ? kerning.fof : 1
 
-		var widths = options.widths ? options.widths : this.internal.getFont().metadata.Unicode.widths,
-			widthsFractionOf = widths.fof ? widths.fof : 1,
-			kerning = options.kerning ? options.kerning : this.internal.getFont().metadata.Unicode.kerning,
-			kerningFractionOf = kerning.fof ? kerning.fof : 1
+			var char_code = 0;
+			var prior_char_code = 0; // for kerning
+			var default_char_width = widths[0] || widthsFractionOf;
 
-		// console.log("widths, kergnings", widths, kerning)
-
-		var char_code = 0;
-		var prior_char_code = 0; // for kerning
-		var default_char_width = widths[0] || widthsFractionOf;
-
-
-		for (i = 0, l = text.length; i < l; i++) {
-			char_code = text.charCodeAt(i)
-			output.push(
-				(widths[char_code] || default_char_width) / widthsFractionOf +
-				(kerning[char_code] && kerning[char_code][prior_char_code] || 0) / kerningFractionOf
-			)
-			prior_char_code = char_code
+			for (i = 0; i < l; i++) {
+				char_code = text.charCodeAt(i)
+				output.push(
+					(widths[char_code] || default_char_width) / widthsFractionOf +
+					(kerning[char_code] && kerning[char_code][prior_char_code] || 0) / kerningFractionOf
+				)
+				prior_char_code = char_code
+			}
 		}
 
 		return output
