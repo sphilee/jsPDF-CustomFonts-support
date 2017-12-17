@@ -47,16 +47,18 @@
 		var l = text.length;
 		var output = [];
 		var i;
+		var fontSize;
+		var charSpace;
 
 		if (options.font) {
-			var fontSize = options.fontSize;
-			var charSpace = options.charSpace;
+			fontSize = options.fontSize;
+			charSpace = options.charSpace;
 			for (i = 0; i < l; i++) {
 				output.push(options.font.widthOfString(text[i], fontSize, charSpace) / fontSize)
 			}
 		} else if (this.internal.getFont().id.slice(1) >= 14) {
-			var fontSize = this.internal.getFontSize();
-			var charSpace = this.internal.getCharSpace();
+			fontSize = this.internal.getFontSize();
+			charSpace = this.internal.getCharSpace();
 			for (i = 0; i < l; i++) {
 				output.push(this.internal.getFont().metadata.widthOfString(text[i], fontSize, charSpace) / fontSize)
 			}

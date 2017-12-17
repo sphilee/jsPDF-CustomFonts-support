@@ -365,13 +365,10 @@ var jsPDF = (function (global) {
         events.publish('postPutPages');
       },
       putFont = function (font) {
-        if ((font.id).slice(1) >= 14) {
+        var noMetadata = Object.keys(font.metadata).length === 0 ? true : false;
+        if ((font.id).slice(1) >= 14 && !noMetadata) {
           var dictionary = font.metadata.embedTTF(font.encoding, newObject, out);
-          if (dictionary) {
-            font.objectNumber = dictionary;
-          } else {
-            delete fonts[font.id];
-          }
+          dictionary ? font.objectNumber = dictionary : delete fonts[font.id];
         } else {
           font.objectNumber = newObject();
           out('<</BaseFont/' + font.postScriptName + '/Type/Font');
