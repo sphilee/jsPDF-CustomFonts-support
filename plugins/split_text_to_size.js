@@ -44,13 +44,13 @@
 			options = {}
 		}
 
-		var isMetadata = Object.keys(this.internal.getFont().metadata).length !== 0 ? true : false;
+		var hasMetadata = Object.keys(this.internal.getFont().metadata).length;
 		var l = text.length;
 		var output = [];
 		var i;
 
 
-		if (this.internal.getFont().id.slice(1) >= 14 && isMetadata) {
+		if (this.internal.getFont().id.slice(1) >= 15 && hasMetadata) {
 			var fontSize = this.internal.getFontSize();
 			var charSpace = this.internal.getCharSpace();
 			for (i = 0; i < l; i++) {

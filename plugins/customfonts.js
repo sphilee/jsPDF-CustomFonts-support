@@ -1990,16 +1990,12 @@
         return PDFObject;
 
     })();
-
-    jsPDFAPI.events.push([
-        'addFont',
-        function (font) {
-            if (jsPDFAPI.existsFileInVFS(font.postScriptName)) {
-                font.metadata = TTFFont.open(font.postScriptName, font.fontName, jsPDFAPI.getFileFromVFS(font.postScriptName), font.encoding);
-                font.encoding = (font.metadata.hmtx.widths.length < 500 && font.metadata.capHeight < 800) ? "WinAnsiEncoding" : "MacRomanEncoding";
-            } else if (font.id.slice(1) >= 14) {
-                console.error("Font does not exist in FileInVFS, import fonts or remove declaration doc.addFont('" + font.postScriptName + "').");
-            }
+    jsPDFAPI.events.push(['addFont', function (font) {
+        if (jsPDFAPI.existsFileInVFS(font.postScriptName)) {
+            font.metadata = TTFFont.open(font.postScriptName, font.fontName, jsPDFAPI.getFileFromVFS(font.postScriptName), font.encoding);
+            font.encoding = (font.metadata.hmtx.widths.length < 500 && font.metadata.capHeight < 800) ? "WinAnsiEncoding" : "MacRomanEncoding";
+        } else if (font.id.slice(1) >= 14) {
+            console.error("Font does not exist in FileInVFS, import fonts or remove declaration doc.addFont('" + font.postScriptName + "').");
         }
-    ]);
+    }]);
 })(jsPDF.API);
