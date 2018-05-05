@@ -6,6 +6,7 @@ JsPDF is an open source that loads JavaScript in an HTML5 environment and create
 
 The current version does not support Custom Fonts. I will try to implement this feature.
 
+## [Live Demo](https://sphilee.github.io/jsPDF-CustomFonts-support)
 
 ## Current Version
 
