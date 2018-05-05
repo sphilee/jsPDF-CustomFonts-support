@@ -26,7 +26,7 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 
 ## Install
 
-Download and include [jspdf.customfonts.min.js](https://raw.githubusercontent.com/sphilee/jsPDF-CustomFonts-support/master/dist/jspdf.customfonts.min.js).
+Download and include [jspdf.customfonts.min.js](https://rawgit.com/sphilee/jsPDF-CustomFonts-support/master/dist/jspdf.customfonts.min.js).
 
 You can also get the plugin with a package manager:
 - ```npm install jspdf-customfonts```
@@ -39,7 +39,7 @@ This document will walk you through the basics of jsPDF and will show you how to
 To begin with the default configuration, you should include two files:
 
 * **dist/jspdf.customfonts.min.js**,
-* **dist/default_vfs.js** - default vfs font definition (it contains 4 Fonts)
+* **dist/default_vfs.js** - default vfs font definition (it contains 1 Font)
 	* however you can use custom fonts according to the following detailed instructions :
         1. Run ``npm install``
 		1. Copy your fonts into the **fonts** subdirectory.
@@ -78,18 +78,10 @@ doc.addFont(fileName, fontName, fontStyle);
 ```javascript
 var doc = new jsPDF();
 
-doc.addFont('Batang.ttf', 'Batang', 'normal');
 doc.addFont('NotoSansCJKjp-Regular.ttf', 'NotoSansCJKjp', 'normal');
-doc.addFont('NotoSansCJKtc-Regular.ttf', 'NotoSansCJKtc', 'normal');
-
-doc.setFont('Batang');
-doc.text(15, 15, '안녕하세요 만나서 반갑습니다.');
 
 doc.setFont('NotoSansCJKjp');
 doc.text(15, 30, 'こんにちは。はじめまして。');
-
-doc.setFont('NotoSansCJKtc');
-doc.text(15, 45, '早上好。 很高兴见到你');
 
 //multi-lines Test
 var paragraph = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit,' +
