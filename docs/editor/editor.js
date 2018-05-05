@@ -70,10 +70,8 @@ var jsPDFEditor = function () {
 		$('.download-pdf').click(function () {
 			eval('try{' + editor.getValue() + '} catch(e) { console.error(e.message,e.stack,e); }');
 
-			var file = demos[$('#template').val()];
-			if (file === undefined) {
-				file = 'demo';
-			}
+			var file = 'demo';
+			
 			if (typeof doc !== 'undefined') {
 				doc.save(file + '.pdf');
 			} else if (typeof pdf !== 'undefined') {
