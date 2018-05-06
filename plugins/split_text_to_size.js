@@ -50,7 +50,7 @@
 		var i;
 
 
-		if (this.internal.getFont().id.slice(1) >= 15 && hasMetadata) {
+		if (this.internal.getFont().id.slice(1) >= 14 && hasMetadata) {
 			var fontSize = this.internal.getFontSize();
 			var charSpace = this.internal.getCharSpace();
 			for (i = 0; i < l; i++) {
