@@ -15,24 +15,24 @@ const browsers = {
     platform: 'macOS 10.13',
     version: '54'
   },
-  sl_safari: {
-    base: 'SauceLabs',
-    browserName: 'safari',
-    platform: 'macOS 10.13',
-    version: '11'
-  },
-  // sl_ie_11: {
+  // sl_safari: {
   //   base: 'SauceLabs',
-  //   browserName: 'internet explorer',
-  //   platform: 'Windows 10',
+  //   browserName: 'safari',
+  //   platform: 'macOS 10.13',
   //   version: '11'
   // },
-  // sl_edge_14: {
-  //   base: 'SauceLabs',
-  //   browserName: 'MicrosoftEdge',
-  //   platform: 'Windows 10',
-  //   version: '15'
-  // }
+  sl_ie_11: {
+    base: 'SauceLabs',
+    browserName: 'internet explorer',
+    platform: 'Windows 10',
+    version: '11'
+  },
+  sl_edge_14: {
+    base: 'SauceLabs',
+    browserName: 'MicrosoftEdge',
+    platform: 'Windows 10',
+    version: '15'
+  }
 }
 
 module.exports = (config) => {
