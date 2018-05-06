@@ -9,7 +9,7 @@ footer {
 
 #editor {
 	width: 50%; 
-	height: 560px; 
+	height: 520px; 
 	float: left; 
 	clear: left; 
 	position: relative;
@@ -29,16 +29,6 @@ footer {
 	clear: left;
 	width: 50%;
 	padding-top: 10px;
-}
-
-#template {
-	width: 250px;
-}
-
-.tweet-buttons { 
-	float: left;
-	margin-right: 40px;
-	padding-top: 8px;
 }
 
 .source {

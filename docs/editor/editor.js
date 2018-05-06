@@ -71,7 +71,7 @@ var jsPDFEditor = function () {
 			eval('try{' + editor.getValue() + '} catch(e) { console.error(e.message,e.stack,e); }');
 
 			var file = 'demo';
-			
+
 			if (typeof doc !== 'undefined') {
 				doc.save(file + '.pdf');
 			} else if (typeof pdf !== 'undefined') {
@@ -83,6 +83,36 @@ var jsPDFEditor = function () {
 			}
 		});
 		return false;
+	};
+
+	var initFileSelect = function () {
+		$('#filePicker').on('change', function (evt) {
+			var files = evt.target.files;
+			var file = files[0];
+
+			if (files && file) {
+				var reader = new FileReader();
+
+				reader.onload = function (readerEvt) {
+					var binaryString = readerEvt.target.result;
+
+					var source = "var doc = new jsPDF();\n";
+					source += "\n";
+					source += `doc.addFileToVFS('${file.name}','${btoa(binaryString)}');\n`;
+					source += "\n";
+					source += `doc.addFont('${file.name}', 'custom', 'normal');\n`;
+					source += "\n";
+
+					source += "doc.setFont('custom');\n";
+					source += "doc.text(15, 15, 'Hello World');\n";
+
+					editor.setValue(source);
+					editor.gotoLine(0);
+				};
+
+				reader.readAsBinaryString(file);
+			}
+		});
 	};
 
 	return {
@@ -98,6 +128,8 @@ var jsPDFEditor = function () {
 			loadSourceCode();
 			// Do the first update on init
 			jsPDFEditor.update();
+
+			initFileSelect();
 
 			initAutoRefresh();
 
