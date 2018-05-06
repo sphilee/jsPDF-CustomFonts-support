@@ -36,13 +36,7 @@ var jsPDFEditor = function () {
 		source += "\n";
 
 		source += `//multi-lines Test\n`;
-		source += `var paragraph = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit,' +
-            ' sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' +
-            ' Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris' +
-            ' nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor ' +
-            'in reprehenderit in voluptate velit esse cillum dolore eu fugiat ' +
-            'nulla pariatur. Excepteur sint occaecat cupidatat non proident, ' +
-            'sunt in culpa qui officia deserunt mollit anim id est laborum.';\n`;
+		source += `var paragraph = '相次いで廃止された寝台列車に代わり、いまや夜間の移動手段として主力になりつつある夜行バス。「安い」「寝ながら移動できる」などのメリットを生かすため、運行ダイヤはどのように組まれているのでしょうか。夜遅く出て、朝早く着くというメリット夜行バスを使うメリットといえば、各種アンケートでもいちばん多い回答の「安い」以外に、';\n`;
 		source += `var lines = doc.splitTextToSize(paragraph, 150);\n`;
 		source += `doc.text(15, 30, lines);\n`;
 
