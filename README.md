@@ -40,8 +40,9 @@ You can also get the plugin with a package manager:
 
 This document will walk you through the basics of jsPDF and will show you how to create PDF files in the browser.
 
-To begin with the default configuration, you should include two files:
+To begin with the default configuration, you should include 3 files:
 
+* **https://unpkg.com/jspdf@latest/dist/jspdf.min.js**,
 * **dist/jspdf.customfonts.min.js**,
 * **dist/default_vfs.js** - default vfs font definition (it contains 1 Font)
 	* however you can use custom fonts according to the following detailed instructions :
