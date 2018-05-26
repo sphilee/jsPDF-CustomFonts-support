@@ -12,7 +12,7 @@ It's on the [GitHub Pages](https://sphilee.github.io/jsPDF-CustomFonts-support/)
 
 ## Current Version
 
-Version 0.0.3
+Version 0.0.4
 
 [jsPDF libary](http://parall.ax/products/jspdf)
 
@@ -25,6 +25,8 @@ I do not claim to be the author of the jsPDF library, this code simply adds prel
 0.0.2 Support multiline text
 
 0.0.3 Refactor multiline text
+
+0.0.4 Make into a plugin
 
 ## Install
 
@@ -55,8 +57,9 @@ To begin with the default configuration, you should include two files:
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>jsPDF customfonts example</title>
-    <script language="javascript" type="text/javascript" src="dist/jspdf.customfonts.min.js"></script>
-    <script language="javascript" type="text/javascript" src="dist/default_vfs.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+    <script src="dist/jspdf.customfonts.min.js"></script>
+    <script src="dist/default_vfs.js"></script>
 </head>
 <body>
 ...
