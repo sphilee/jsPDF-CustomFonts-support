@@ -1,5 +1,5 @@
 /*!
- * jsPDF customfonts plugin v0.0.4
+ * jsPDF customfonts plugin v0.0.4-rc.4
  * Copyright (c) 2018 GH Lee, https://github.com/sphilee/jsPDF-CustomFonts-support
  * 
  * Licensed under the MIT License.
@@ -121,8 +121,11 @@ var postProcessText = function postProcessText(args) {
       fonts = _args$mutex.fonts;
   var isHex = activeFontKey.slice(1) >= 15;
   var activeFont = fonts[activeFontKey];
+  var _activeFont$metadata = activeFont.metadata,
+      encode = _activeFont$metadata.encode,
+      subset = _activeFont$metadata.subset;
   args.text = isHex ? text.map(function (str) {
-    return activeFont.metadata.encode(activeFont.metadata.subset, str);
+    return Array.isArray(str) ? [encode(subset, str[0]), str[1], str[2]] : encode(subset, str);
   }) : text;
   args.mutex.isHex = isHex;
 };

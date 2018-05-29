@@ -1,6 +1,6 @@
 {
   "name": "jspdf-customfonts",
-  "version": "0.0.4-rc.2",
+  "version": "0.0.4-rc.4",
   "homepage": "https://github.com/sphilee/jsPDF-CustomFonts-support",
   "description": "Add Custom fonts support to jsPDF",
   "main": "dist/jspdf.customfonts.min.js",
