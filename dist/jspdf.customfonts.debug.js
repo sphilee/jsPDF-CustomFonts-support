@@ -2504,7 +2504,8 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 jsPDF.API.TTFFont = _ttffont.default;
 jsPDF.API.events.splice(-4);
-jsPDF.API.events.push(['addFont', function (font) {
+jsPDF.API.events.push(['addFont', function (args) {
+  var font = args.font;
   var id = font.id,
       fontName = font.fontName,
       postScriptName = font.postScriptName;

@@ -7,7 +7,8 @@ jsPDF.API.TTFFont = TTFFont;
 
 jsPDF.API.events.splice(-4);
 
-jsPDF.API.events.push(['addFont', function(font){
+jsPDF.API.events.push(['addFont', function (args) {
+    const font = args.font;
     const {id, fontName, postScriptName} = font;
     if (jsPDF.API.existsFileInVFS(postScriptName)) {
         font.metadata = jsPDF.API.TTFFont.open(postScriptName, fontName, jsPDF.API.getFileFromVFS(postScriptName));
