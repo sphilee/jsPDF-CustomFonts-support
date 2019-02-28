@@ -1,6 +1,6 @@
 {
   "name": "jspdf-customfonts",
-  "version": "0.0.4-rc.4",
+  "version": "0.0.5",
   "homepage": "https://github.com/sphilee/jsPDF-CustomFonts-support",
   "description": "Add Custom fonts support to jsPDF",
   "main": "dist/jspdf.customfonts.min.js",
@@ -25,10 +25,9 @@
   },
   "author": "sphilee",
   "peerDependencies": {
-    "jspdf": "^1.4.0"
+    "jspdf": "^1.5.3"
   },
   "devDependencies": {
-    "jspdf": "^1.4.0",
     "@babel/core": "^7.0.0-beta.49",
     "@babel/preset-env": "^7.0.0-beta.49",
     "babel-loader": "^8.0.0-beta.3",
